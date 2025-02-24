@@ -1,0 +1,16 @@
+---
+import ScheduleFormLayout from "@layouts/ScheduleFormLayout.astro";
+import CreateScheduleForm from "@components/pages/users/@me/schedule/ScheduleForm";
+import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
+
+const wrapper = new APIWrapper(RequestAPIFrom.Server)
+
+const session_cookie = Astro.cookies.get("session_id")
+const session_id = session_cookie?.value || null
+
+const session = await wrapper.getCurrentSession(session_id)
+---
+
+<ScheduleFormLayout>
+    <CreateScheduleForm sellerId={session.profile.id} client:load />
+</ScheduleFormLayout>

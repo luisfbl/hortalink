@@ -1,0 +1,20 @@
+---
+import "@styles/layouts/schedule_form.scss"
+
+import BaseLayout from "./BaseLayout.astro";
+---
+
+<BaseLayout>
+    <Fragment slot="head">
+        <title>Criar agendamento</title>
+    </Fragment>
+    <Fragment slot="body">
+        <header>
+            <h1>Criar agendamento</h1>
+        </header>
+        <div class="line" />
+        <main>
+            <slot />
+        </main>
+    </Fragment>
+</BaseLayout>

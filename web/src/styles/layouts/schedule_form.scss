@@ -1,0 +1,87 @@
+@use"../colors";
+
+@mixin flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+header {
+    width: 100%;
+    margin: auto;
+
+    margin-top: 2rem;
+
+    h1 {
+        text-align: center;
+        font-size: 1.563em;
+
+        color: #262626
+    }
+}
+
+.line {
+    width: 100%;
+    max-width: 430px !important;
+}
+
+main {
+    form {
+        width: 100%;
+        max-width: 430px;
+        margin: auto;
+
+        h2 {
+            color: colors.$mid_1;
+            font-size: 1.25em;
+
+            font-weight: 600;
+            margin: 0.5rem 0;
+        }
+
+        input, select {
+            width: 100%;
+            max-width: 179px;
+    
+            background-color: transparent;
+    
+            border: 2px solid scale-color($color: colors.$light_1, $alpha: 40%);
+            border-radius: 10px;
+    
+            font-size: 1.2em;
+            color: colors.$mid_1;
+    
+            padding: 8px;
+        }
+
+        .inputs_row {
+            @include flex();
+            justify-content: flex-start;
+            gap: 0.5rem;
+
+            width: 100%;
+        }
+    }
+}
+
+.action_button {
+    display: block;
+    position: fixed;
+
+    bottom: 6rem;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 100%;
+    max-width: 391px;
+    padding: 15px 10px;
+
+    border: none;
+    border-radius: 8px;
+
+    background-color: colors.$group1_color_2;
+    color: colors.$lightest;
+
+    font-size: 1.1em;
+    font-weight: 600;
+}

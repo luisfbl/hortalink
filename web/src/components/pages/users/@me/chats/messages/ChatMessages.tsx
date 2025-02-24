@@ -50,8 +50,6 @@ export default function ChatMessages(props: { pre_rendered: ChatMessage[], sessi
             const decoded_payload = JSON.parse(msg.data)
             const notification = decoded_payload.d as MessageNotification
 
-            console.log(notification)
-
             setMessages((oldMessages) => {
                 const newMessage: DisplayMessage = {
                     content: notification.content,

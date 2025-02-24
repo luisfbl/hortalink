@@ -37,6 +37,7 @@ function RequestAPI(from: RequestAPIFrom, path: string, searchParams?: URLSearch
         })
     
         if(!request.ok) {
+            console.log(request.status)
             const response = await automaticallyParseResponse(request)
             return reject(response)
         }

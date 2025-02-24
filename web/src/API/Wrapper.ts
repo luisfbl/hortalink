@@ -1,11 +1,12 @@
 import type { User } from "@interfaces/User"
 import RequestAPI from "./APIFunctions/RequestAPI"
 import type { Cart, DetailedProduct, FullRating, IndividualRating, Product, ProductFilter, ProductFullTextSearch, Rating } from "@interfaces/Product"
-import type { Schedule } from "@interfaces/Schedule"
+import type { Schedule, ScheduleApiBody } from "@interfaces/Schedule"
 import type { Seller } from "@interfaces/Seller"
 import type { UserResults } from "@components/pages/home/search/Search"
 import type { SellerOrder } from "@interfaces/Orders"
 import type { ChatMessage, ChatPreview } from "@interfaces/Chat"
+import type { Except } from "type-fest"
 
 class APIWrapper<F extends RequestAPIFrom> {
     private from: F
@@ -414,6 +415,12 @@ class APIWrapper<F extends RequestAPIFrom> {
             case RequestAPIFrom.Server:
                 return await this.createChatMessageFromServer(chat_id, content, session_id)
         }
+    }
+
+    public async createSchedule(sellerId: number, schedule: ScheduleApiBody & { location: { longitude: number, latitude: number } }) {
+        return await RequestAPI(this.from, `/v1/sellers/${sellerId}/schedules`, null, "include", {
+            "Content-Type": "application/json",
+        }, "POST", JSON.stringify(schedule))
     }
 }
 
