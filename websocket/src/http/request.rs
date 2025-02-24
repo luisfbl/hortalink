@@ -18,7 +18,8 @@ pub fn get_sec_key(req: &HttpRequest) -> Option<&String> {
     if !req
         .headers
         .get("connection")?
-        .eq_ignore_ascii_case("upgrade")
+        .to_lowercase()
+        .contains("upgrade")
         || !req
         .headers
         .get("upgrade")?
