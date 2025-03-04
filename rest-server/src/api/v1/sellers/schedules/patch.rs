@@ -30,28 +30,86 @@ pub async fn schedule(
         }
     }
 
-    sqlx::query(r#"
-        UPDATE schedules
-        SET
-            geolocation = COALESCE($1::geometry, geolocation),
-            address = COALESCE($2, address),
-            start_time = COALESCE($3, start_time),
-            end_time = COALESCE($4, end_time),
-            day_of_week = COALESCE($5, day_of_week)
-        WHERE id = $6
-    "#)
-        .bind(payload.location
-            .map(|loc| {
-                format!("ST_SetSRID(ST_MakePoint({}, {}),  4674)", loc.latitude.unwrap(), loc.longitude.unwrap())
-            }))
-        .bind(payload.address)
-        .bind(payload.start_time)
-        .bind(payload.end_time)
-        .bind::<Option<i16>>(payload.day_of_week
-            .map(|day| day.into()))
-        .bind(schedule_id)
-        .execute(&state.pool)
-        .await?;
+    let mut tx = state.pool.begin().await?;
+    
+    if let Some(location) = payload.location {
+        let current_place_id: i64 = sqlx::query_scalar("SELECT place FROM schedules WHERE id = $1")
+            .bind(schedule_id)
+            .fetch_one(&mut *tx)
+            .await?;
+        
+        let new_place_id = if let Some(nearby_place_id) = sqlx::query_scalar::<_, i64>(
+            r#"
+                SELECT id FROM places
+                WHERE ST_DWithin(
+                    geolocation,
+                    ST_SetSRID(ST_MakePoint($1, $2), 4674),
+                    250
+                )
+                AND id != $3
+                ORDER BY ST_Distance(
+                    geolocation,
+                    ST_SetSRID(ST_MakePoint($1, $2), 4674)
+                )
+                LIMIT 1
+            "#
+        )
+            .bind(location.longitude.unwrap())
+            .bind(location.latitude.unwrap())
+            .bind(current_place_id)
+            .fetch_optional(&mut *tx)
+            .await? {
+
+            nearby_place_id
+        } else {
+            sqlx::query_scalar::<_, i64>(
+                r#"
+                    INSERT INTO places (geolocation, address)
+                    VALUES (ST_SetSRID(ST_MakePoint($1, $2), 4674), $3)
+                    RETURNING id
+                "#
+            )
+                .bind(location.longitude.unwrap())
+                .bind(location.latitude.unwrap())
+                .bind(payload.address.as_ref().unwrap_or(&"".to_string()))
+                .fetch_one(&mut *tx)
+                .await?
+        };
+
+        sqlx::query(r#"
+            UPDATE schedules
+            SET
+                place = $1,
+                start_time = COALESCE($2, start_time),
+                end_time = COALESCE($3, end_time),
+                day_of_week = COALESCE($4, day_of_week)
+            WHERE id = $5
+        "#)
+            .bind(new_place_id)
+            .bind(payload.start_time)
+            .bind(payload.end_time)
+            .bind::<Option<i16>>(payload.day_of_week.map(|day| day.into()))
+            .bind(schedule_id)
+            .execute(&mut *tx)
+            .await?;
+    } else {
+        sqlx::query(r#"
+            UPDATE schedules
+            SET
+                start_time = COALESCE($1, start_time),
+                end_time = COALESCE($2, end_time),
+                day_of_week = COALESCE($3, day_of_week)
+            WHERE id = $4
+        "#)
+            .bind(payload.start_time)
+            .bind(payload.end_time)
+            .bind::<Option<i16>>(payload.day_of_week.map(|day| day.into()))
+            .bind(schedule_id)
+            .execute(&mut *tx)
+            .await?;
+    }
+
+    tx.commit().await?;
 
     Ok(())
 }

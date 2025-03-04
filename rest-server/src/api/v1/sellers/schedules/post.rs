@@ -21,21 +21,55 @@ pub async fn schedule(
     let payload = payload.into_inner();
     let mut tx = state.pool.begin().await?;
 
-    sqlx::query_scalar::<_, i32>(
+    let existing_place = sqlx::query_scalar::<_, i64>(
         r#"
-            INSERT INTO schedules (geolocation, address, start_time, end_time, day_of_week, seller_id)
-            VALUES (ST_SetSRID(ST_MakePoint($1, $2), 4674), $3, $4, $5, $6, $7)
-            RETURNING id
+            SELECT id FROM places
+            WHERE ST_DWithin(
+                geolocation,
+                ST_SetSRID(ST_MakePoint($1, $2), 4674),
+                250
+            )
+            ORDER BY ST_Distance(
+                geolocation,
+                ST_SetSRID(ST_MakePoint($1, $2), 4674)
+            )
+            LIMIT 1
         "#
     )
-        .bind(payload.location.latitude)
         .bind(payload.location.longitude)
-        .bind(payload.address)
+        .bind(payload.location.latitude)
+        .fetch_optional(&mut *tx)
+        .await?;
+
+    let place_id = if let Some(id) = existing_place {
+        id
+    } else {
+        sqlx::query_scalar::<_, i64>(
+            r#"
+                INSERT INTO places (geolocation, address)
+                VALUES (ST_SetSRID(ST_MakePoint($1, $2), 4674), $3)
+                RETURNING id
+            "#
+        )
+            .bind(payload.location.longitude)
+            .bind(payload.location.latitude)
+            .bind(&payload.address)
+            .fetch_one(&mut *tx)
+            .await?
+    };
+
+    sqlx::query(
+        r#"
+            INSERT INTO schedules (place, start_time, end_time, day_of_week, seller_id)
+            VALUES ($1, $2, $3, $4, $5)
+        "#
+    )
+        .bind(place_id)
         .bind(payload.start_time)
         .bind(payload.end_time)
         .bind(payload.day_of_week as i16)
         .bind(seller_id)
-        .fetch_one(&mut *tx)
+        .execute(&mut *tx)
         .await?;
 
     tx.commit().await?;
