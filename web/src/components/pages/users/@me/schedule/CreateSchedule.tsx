@@ -32,79 +32,28 @@ export default function CreateSchedule() {
     const date = new Date()
 
     const currentDayOfWeek = date.getDay() // day of week
-    const currentDay = date.getDate()
-    const currentMonth = date.getMonth()
     
-    const days: number[] = new Array(dayNames.length)
-    days[currentDayOfWeek] = currentDay
-    const lastDay = getLastDay(currentMonth + 1, date.getFullYear())
-    
-    const [selectedDay, setSelectedDay] = useState(currentDay)
-    const [selectedMonth, setSelectedMonth] = useState(currentMonth + 1)
+    const [selectedDay, setSelectedDay] = useState(currentDayOfWeek)
 
-    let dayMove = 1
-    for (let d = currentDayOfWeek + 1; d < dayNames.length; d++) {
-        let newDay = currentDay + dayMove
-        if(newDay > lastDay) {
-            newDay -= lastDay
-        }
-        days[d] = newDay
-        dayMove += 1
-    }
-
-    dayMove = 1
-
-    for(let d = currentDayOfWeek - 1; d > -1; d--) {
-        let newDay = currentDay - dayMove
-
-        if(newDay < 1) {
-            newDay = lastDay - (newDay)
-        }
-        days[d] = newDay
-        dayMove += 1
-    }
+    const daysArr = new Array(7).fill(0)
 
     return (
         <section className="create_schedule">
             <div className="create_schedule_header">
-                <img
-                    src="/assets/chevron.svg"
-                    alt="Seta para esquerda, clique para mudar para o mês anterior."
-                    width={27}
-                    height={27}
-                    style={{ marginRight: "auto" }}
-                    onClick={() => {
-                        if(selectedMonth >= 2) {
-                            setSelectedMonth((month) => month - 1)
-                        }
-                    }}
-                />
-                <h2>{monthNames[selectedMonth]}</h2>
-                <img
-                    src="/assets/chevron.svg"
-                    alt="Seta para direita, clique para mudar para o próximo mês."
-                    width={27}
-                    height={27}
-                    style={{ transform: "rotate(-180deg)", marginLeft: "auto" }}
-                    onClick={() => {
-                        if(selectedMonth <= 11) {
-                            setSelectedMonth((month) => month + 1)
-                        }
-                    }}
-                />
+                <h2>Selecionar dia da semana</h2>
             </div>
             <div className="create_schedule_days_selector">
                 {
-                    days.map((day, i) => (
+                    daysArr.map((_, day) => (
                         <button key={`create_schedule_day-${day}`} className={`day ${selectedDay === day ? 'selected': ''}`} onClick={() => setSelectedDay(day)} aria-label={`Selecionar a data`}>
-                            {dayNames[i].slice(0, 3)}<br />
+                            {dayNames[day].slice(0, 3)}<br />
                         </button>    
                     ))
                 }
             </div>
-            <button className="create_schedule_button">
+            <a className="create_schedule_button" href={`/schedules/form?day_of_week=${selectedDay}`}>
                 Criar Agendamento
-            </button>
+            </a>
         </section>
     )
 }

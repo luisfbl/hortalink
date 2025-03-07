@@ -422,6 +422,12 @@ class APIWrapper<F extends RequestAPIFrom> {
             "Content-Type": "application/json",
         }, "POST", JSON.stringify(schedule))
     }
+
+    public async editSchedule(sellerId: number, schedule_id: number, schedule: Partial<ScheduleApiBody & { location: { longitude: number, latitude: number }}>) {
+        return await RequestAPI(this.from, `/v1/sellers/${sellerId}/schedules/${schedule_id}`, null, "include", {
+            "Content-Type": "application/json",
+        }, "PATCH", JSON.stringify(schedule))
+    }
 }
 
 

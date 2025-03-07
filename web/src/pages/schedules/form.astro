@@ -2,6 +2,7 @@
 import ScheduleFormLayout from "@layouts/ScheduleFormLayout.astro";
 import CreateScheduleForm from "@components/pages/users/@me/schedule/ScheduleForm";
 import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
+import type { Schedule } from "@interfaces/Schedule";
 
 const wrapper = new APIWrapper(RequestAPIFrom.Server)
 
@@ -9,8 +10,22 @@ const session_cookie = Astro.cookies.get("session_id")
 const session_id = session_cookie?.value || null
 
 const session = await wrapper.getCurrentSession(session_id)
+
+const params = new URL(Astro.request.url)
+const scheduleId = params.searchParams.get("schedule") || null
+
+let currentSchedule: Schedule | null = null
+
+if(scheduleId) {
+    const schedules = await wrapper.getSellerSchedules(session.profile.id, session_id)
+    currentSchedule = schedules.find(s => {
+        return s.id == parseInt(scheduleId)
+    })
+}
+
+console.log(currentSchedule, scheduleId)
 ---
 
 <ScheduleFormLayout>
-    <CreateScheduleForm sellerId={session.profile.id} client:load />
+    <CreateScheduleForm sellerId={session.profile.id} scheduleData={currentSchedule} client:load />
 </ScheduleFormLayout>

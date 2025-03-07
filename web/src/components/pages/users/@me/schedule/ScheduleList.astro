@@ -16,7 +16,7 @@ const schedules = Astro.props.schedules
                     <p>Horário: {schedule.start_time} - {schedule.end_time}</p>
                     <p>Local: {schedule.address}</p>
                 </div>
-                <a class="edit_schedule" href={`/schedules/edit/${schedule.id}`}>
+                <a class="edit_schedule" href={`/schedules/form?schedule=${schedule.id}&day_of_week=${schedule.day_of_week}`}>
                     <img
                         src="/assets/pencil_green.svg"
                         width={24}
