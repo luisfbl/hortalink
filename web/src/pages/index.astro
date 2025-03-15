@@ -5,25 +5,19 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 
 import Unsigned from "@components/pages/home/Unsigned.astro";
 import CustomerHome from "@components/pages/home/CustomerHome.astro";
-import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
-import type { User } from "@interfaces/User";
+import Session from "../stores/Session";
+import SellerHome from "../components/pages/home/SellerHome.astro";
 
-const wrapper = new APIWrapper(RequestAPIFrom.Server)
-
-const session_cookie = Astro.cookies.get("session_id")
-const session_id = session_cookie?.value || null
-
-const session = session_id ? await wrapper.getCurrentSession(session_id) : null
-
+const session = Session.get()
 export const prerender = false
 ---
 
-<BaseLayout no_session_fetch={true}>
+<BaseLayout>
     <Fragment slot="head">
         <title>Hortalink</title>
     </Fragment>
     <Fragment slot="body">
-        { session && !session.profile.is_seller && <CustomerHome /> }
+        { session && (session.profile.is_seller ? <SellerHome/> : <CustomerHome />) }
         { !session && <Unsigned /> }
 
         { !session &&

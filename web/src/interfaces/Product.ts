@@ -13,6 +13,7 @@ interface Product {
     description: string,
     unit: string,
     unit_quantity: number
+    dist: number,
 
     seller_id: number
 }

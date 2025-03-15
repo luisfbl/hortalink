@@ -1,0 +1,93 @@
+---
+
+import SearchBar from "./search/SearchBar.astro";
+import SearchContainer from "./search/SearchContainer.astro";
+---
+
+<SearchBar />
+<div class="line" style="max-width: 401px;" />
+<div id="homepage">
+</div>
+<div id="searchpage" hidden="true">
+    <SearchContainer />
+</div>
+
+<script>
+    import { screen, Screen } from "./search/Search";
+
+    const searchbar = document.querySelector<HTMLInputElement>(".search_global_container .searchbar_container #global__search")
+
+    const homepage = document.querySelector<HTMLInputElement>("#homepage")
+    const searchpage = document.querySelector<HTMLInputElement>("#searchpage")
+
+    const home_nav_link = document.querySelector<HTMLLinkElement>(".navbar_container .navbar #globalnav__home")
+    const search_nav_link = document.querySelector<HTMLLinkElement>(".navbar_container .navbar #globalnav__search")
+
+    const nosearch_icons = document.querySelectorAll<HTMLDivElement>(".search_global_container .searchbar_container .nosearch")
+
+    function hideNoSearchIcons() {
+        nosearch_icons.forEach((icon) => {
+            icon.style.display = "none"
+        })
+    }
+
+    function unhideSearchIcons() {
+        nosearch_icons.forEach((icon) => {
+            icon.style.display = "block"
+        })
+    }
+
+    const params = new URL(window.location.href)
+    const sec = params.searchParams.get("sec")
+
+    if(sec && sec === "search") {
+        searchpage.hidden = false
+        homepage.hidden = true
+
+        hideNoSearchIcons()
+        setTimeout(() => {
+            screen.set(Screen.Menu)
+        }, 400)
+    }
+
+    home_nav_link?.addEventListener("click", (e) => {
+        e.preventDefault()
+
+        searchpage.hidden = true
+        homepage.hidden = false
+
+        unhideSearchIcons()
+        screen.set(Screen.Home)
+    })
+
+    search_nav_link?.addEventListener("click", (e) => {
+        e.preventDefault()
+
+        searchpage.hidden = false
+        homepage.hidden = true
+
+        hideNoSearchIcons()
+        screen.set(Screen.Menu)
+    })
+
+    searchbar?.addEventListener("focus", () => {
+        if(searchpage.hidden === false) return
+        searchpage.hidden = false
+        homepage.hidden = true
+
+        hideNoSearchIcons()
+        screen.set(Screen.Menu)
+    })
+
+    screen.listen((v) => {
+        if(v == Screen.Home) {
+            unhideSearchIcons()
+        } else {
+            hideNoSearchIcons()
+        }
+
+
+        searchpage.hidden = !(v == Screen.Menu || v == Screen.Results)
+        homepage.hidden = !(v == Screen.Home)
+    })
+</script>

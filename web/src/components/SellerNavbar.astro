@@ -1,0 +1,58 @@
+---
+import Navbar from "@layouts/Navbar.astro";
+
+import Image from "@components/Image";
+---
+
+<Navbar>
+    <a class="icon" href="/" id="globalnav__home">
+        <Image
+                src="/assets/home.svg"
+                alt="Ícone de uma casa, clique para voltar à página inicial."
+                width={26}
+                height={26}
+                client:load
+        />
+        <p>Início</p>
+    </a>
+    <a class="icon" href="/users/@me/orders">
+        <Image
+                src="/assets/bag.svg"
+                alt="Ícone de uma sacola, clique para visualizar seus pedidos."
+                width={26}
+                height={26}
+                client:load
+        />
+        <p>Pedidos</p>
+    </a>
+    <a class="icon" href="/users/@me/products">
+        <Image
+                src="/assets/shop.svg"
+                alt="Ícone de uma loja, clique para visualizar produtos."
+                width={26}
+                height={26}
+                client:load
+        />
+        <p>Loja</p>
+    </a>
+    <a class="icon" href="/users/@me/schedules">
+        <Image
+                src="/assets/calendar.svg"
+                alt="Ícone de um calendário, clique para visualizar seus agendamentos."
+                width={26}
+                height={26}
+                client:load
+        />
+        <p>Agenda</p>
+    </a>
+    <a class="icon" href="/users/@me">
+        <Image
+                src="/assets/user.svg"
+                alt="Ícone de um usuário, clique para acessar seu perfil."
+                width={26}
+                height={26}
+                client:load
+        />
+        <p>Conta</p>
+    </a>
+</Navbar>

@@ -1,12 +1,20 @@
-import type { User } from "@interfaces/User"
+import type {User} from "@interfaces/User"
 import RequestAPI from "./APIFunctions/RequestAPI"
-import type { Cart, DetailedProduct, FullRating, IndividualRating, Product, ProductFilter, ProductFullTextSearch, Rating } from "@interfaces/Product"
-import type { Schedule, ScheduleApiBody } from "@interfaces/Schedule"
-import type { Seller } from "@interfaces/Seller"
-import type { UserResults } from "@components/pages/home/search/Search"
-import type { SellerOrder } from "@interfaces/Orders"
-import type { ChatMessage, ChatPreview } from "@interfaces/Chat"
-import type { Except } from "type-fest"
+import type {
+    Cart,
+    DetailedProduct,
+    FullRating,
+    IndividualRating,
+    Product,
+    ProductFilter,
+    ProductFullTextSearch
+} from "@interfaces/Product"
+import type {Schedule, ScheduleApiBody} from "@interfaces/Schedule"
+import type {Seller} from "@interfaces/Seller"
+import type {UserResults} from "@components/pages/home/search/Search"
+import type {SellerOrder} from "@interfaces/Orders"
+import type {ChatMessage, ChatPreview} from "@interfaces/Chat"
+import Geolocation from "../stores/Geolocation"
 
 class APIWrapper<F extends RequestAPIFrom> {
     private from: F
@@ -25,15 +33,13 @@ class APIWrapper<F extends RequestAPIFrom> {
     }
 
     private async getCurrentSessionFromClient(): Promise<User> {
-        const data = await RequestAPI(this.from, "/v1/users/@me", null, "include") as User
-        return data
+        return await RequestAPI(this.from, "/v1/users/@me?extended=false", null, "include") as User
     }
 
     private async getCurrentSessionFromServer(session_id: string): Promise<User> {
-        const data = await RequestAPI(this.from, "/v1/users/@me", null, "include", {
+        return await RequestAPI(this.from, "/v1/users/@me?extended=false", null, "include", {
             'Cookie': `session_id=${session_id}`
         }) as User
-        return data
     }
 
     public async getRecentProducts(page: number = 1): Promise<Product[]> {
@@ -43,7 +49,7 @@ class APIWrapper<F extends RequestAPIFrom> {
         searchParams.append("per_page", String(10))
 
         const data = await RequestAPI(this.from, "/v1/users/@me/home/most_recent", searchParams, "include") as Product[]
-        return data
+        return this.changeProductsDistance(data)
     }
 
     public async getMoreOrderProducts(page: number = 1): Promise<Product[]> {
@@ -53,7 +59,7 @@ class APIWrapper<F extends RequestAPIFrom> {
         searchParams.append("per_page", String(10))
 
         const data = await RequestAPI(this.from, "/v1/users/@me/home/more_orders", searchParams, "include") as Product[]
-        return data
+        return this.changeProductsDistance(data)
     }
 
     public async getProducts(filter: ProductFilter): Promise<Product[]> {
@@ -76,7 +82,7 @@ class APIWrapper<F extends RequestAPIFrom> {
         }
 
         const data = await RequestAPI(this.from, "/v1/products", searchParams, "include") as Product[]
-        return data
+        return this.changeProductsDistance(data)
     }
 
     public async searchUsers(query: string, page: number, per_page: number) {
@@ -253,7 +259,7 @@ class APIWrapper<F extends RequestAPIFrom> {
 
         const data = await RequestAPI(this.from, `/v1/sellers/${seller_id}/products`, params, "include") as Product[]
 
-        return data
+        return this.changeProductsDistance(data)
     }
 
     private async getSellersProductsFromServer(seller_id: number, page: number, session_id: string): Promise<Product[]> {
@@ -266,7 +272,7 @@ class APIWrapper<F extends RequestAPIFrom> {
             "Cookie": `session_id=${session_id}`
         }) as Product[]
 
-        return data
+        return this.changeProductsDistance(data)
     }
 
     public async getCart(): Promise<Cart[]> {
@@ -427,6 +433,38 @@ class APIWrapper<F extends RequestAPIFrom> {
         return await RequestAPI(this.from, `/v1/sellers/${sellerId}/schedules/${schedule_id}`, null, "include", {
             "Content-Type": "application/json",
         }, "PATCH", JSON.stringify(schedule))
+    }
+
+    public async getProductsDistance(productsId: number[], latitude: number, longitude: number) {
+        const params = new URLSearchParams()
+        params.append("products_id", JSON.stringify(productsId))
+        params.append("latitude", latitude.toString())
+        params.append("longitude", longitude.toString())
+
+        return await RequestAPI(this.from, `/v1/products/distance`, params, "include")
+    }
+
+    public async getHomeInfo(session_id: string) {
+        return await RequestAPI(this.from, `/v1/users/@me/home`, undefined, "include", {
+            "Cookie": `session_id=${session_id}`
+        }) as Home
+    }
+
+    private async changeProductsDistance(
+        products: Product[]
+    ): Promise<Product[]> {
+        const position = Geolocation.position.get();
+        if (!products.length || position == null) {
+            return products;
+        }
+
+        const productsId = products.map(product => product.id);
+        const distanceData = await this.getProductsDistance(productsId, position[0], position[1]);
+
+        return products.map(product => ({
+            ...product,
+            distance: distanceData[product.id] || null
+        }));
     }
 }
 

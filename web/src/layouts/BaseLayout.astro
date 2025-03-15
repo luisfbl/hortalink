@@ -2,14 +2,28 @@
 import "@styles/global.scss";
 
 import ClientNavbar from "@components/ClientNavbar.astro";
+import APIWrapper, {RequestAPIFrom} from "../API/Wrapper";
+import SellerNavbar from "@components/SellerNavbar.astro";
+import Session from "../stores/Session";
+import SessionInitializer from "@utils/SessionInitializer";
 
 interface Props {
-    no_nav?: boolean,
-    no_session_fetch?: boolean
+    no_nav?: boolean
 }
 
 const nonav = Astro.props?.no_nav
-const no_session_fetch = Astro.props?.no_session_fetch || false
+
+const session_cookie = Astro.cookies.get("session_id")
+const session_id = session_cookie?.value || null
+const wrapper = new APIWrapper(RequestAPIFrom.Server)
+
+let user = Session.get()
+if (!user) {
+    user = session_id ? await wrapper.getCurrentSession(session_id) : null
+    Session.set(user)
+} else {
+    user = Session.get()
+}
 
 export const prerender = false
 ---
@@ -22,26 +36,10 @@ export const prerender = false
 <body>
     <div id="site-container">
         {
-            !nonav && <ClientNavbar />
+            !nonav && (user?.profile?.is_seller ? <SellerNavbar /> : <ClientNavbar />)
         }
-        <slot name="body">
+        <slot name="body"/>
     </div>
-    <div id="should_not_fetch_session" data-nofetch={`${no_session_fetch}`}></div>
-    <script>
-        import Session from "@stores/Session";
-        import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
 
-        const should_not_fetch_session = document.querySelector<HTMLDivElement>("#should_not_fetch_session").dataset.nofetch
-        console.log(should_not_fetch_session)
-    
-        if(should_not_fetch_session == "false") {
-            const wrapper = new APIWrapper(RequestAPIFrom.Client)
-
-            wrapper.getCurrentSession().then(data => {
-                Session.set(data)
-            }).catch(e => {
-                Session.set(undefined)
-            })
-        }
-    </script>
+    <SessionInitializer userData={user} client:load />
 </body>

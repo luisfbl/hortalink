@@ -1,17 +1,10 @@
 import type { Product } from "@interfaces/Product";
-import React, { memo } from "react";
-
 import Image from "@components/Image";
+import formatDistance from "@utils/formatDistance.ts";
 
-const Star = memo(() => (
-    <img
-        src="/assets/star.svg"
-        width={10}
-        height={10}
-        alt="Imagem de uma estrela"
-    />
-))
-
+function ItemDist(props: { dist: number }) {
+    return <>{props.dist ? formatDistance(props.dist): "N/A"}</>
+}
 
 export default function Product(props: { product: Product }) {
     const productData = props.product
@@ -52,7 +45,9 @@ export default function Product(props: { product: Product }) {
                         width={10}
                         height={10}
                     />
-                    <p>0,6km</p>
+                    <p>
+                        <ItemDist dist={productData.dist}/>
+                    </p>
                 </div>
                 <p className="price"><span>R$ {productData.price}</span>/<span className="label">{productData.unit_quantity}{productData.unit}</span></p>
             </div>

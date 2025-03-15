@@ -2,6 +2,7 @@ import type { Profile } from "@interfaces/Profile";
 
 interface User {
     orders: any[],
+    reviews: any[],
     profile: Profile
 }
 
