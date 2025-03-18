@@ -1,5 +1,5 @@
 import { useStore } from "@nanostores/react";
-import SelectionStore, { Selection } from "@stores/pages/Users_@me";
+import SelectionStore, { Selection } from "@stores/pages/SelectionStore.ts";
 import Session from "@stores/Session";
 
 export default function Orders() {

@@ -15,7 +15,7 @@ export default function CartProduct(props: { cart: Cart }) {
                     />
                 </div>
                 <h2>{cart.user.name}</h2>
-                <a className="see_profile" href={`/sellers/${cart.user.id}`}>Ver Perfil</a>
+                <a className="see_profile" href={`/users/${cart.user.id}`}>Ver Perfil</a>
             </div>
             {
                 cart.products.map(product => {

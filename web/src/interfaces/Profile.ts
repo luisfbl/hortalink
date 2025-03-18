@@ -1,11 +1,13 @@
 interface Profile {
     avatar?: string,
-    following: number,
+    following: number | null,
     id: number,
     is_seller: boolean,
     name: string,
-    orders_made: number,
-    roles: number[]
+    orders_made: number | null,
+    orders_received: number | null,
+    roles: number[],
+    followers: number | null
 }
 
 export type {

@@ -11,7 +11,6 @@ const UNITS = {
     4: "Cg",
     5: "Mg",
     6: "U"
-
 }
 
 export default function SellerOrderData(props: { product: SellerOrderProduct, fullOrder: SellerOrder }) {
@@ -56,7 +55,7 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
                     <h2 style={{ marginBottom: "0.5rem" }}>{props.fullOrder.user.name}</h2>
                     <p>Entrar em contato</p>
                 </div>
-                <a href="/" className="see_profile">Ver perfil</a>
+                <a href={`/users/${props.fullOrder.user.id}`} className="see_profile">Ver perfil</a>
             </div>
             <div className="line" />
             <h2 style={{ marginBottom: "1rem" }}>Produtos</h2>

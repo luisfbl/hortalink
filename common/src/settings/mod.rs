@@ -29,6 +29,12 @@ pub trait Protocol {
     }
 
     fn socket(&self) -> String {
+        let host = self.get_host();
+        
+        if host == "0.0.0.0" {
+            return format!("localhost:{}", self.get_port())
+        }
+        
         format!("{}:{}", self.get_host(), self.get_port())
     }
 

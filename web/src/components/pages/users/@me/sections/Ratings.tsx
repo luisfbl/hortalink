@@ -1,4 +1,4 @@
-import SelectionStore, { Selection } from "@stores/pages/Users_@me";
+import SelectionStore, { Selection } from "@stores/pages/SelectionStore.ts";
 
 import UserRatings from "@layouts/UserRatings";
 import UserRating from "@components/UserRating";

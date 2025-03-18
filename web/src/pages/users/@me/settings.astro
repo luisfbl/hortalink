@@ -1,0 +1,31 @@
+---
+import "@styles/pages/users/@me/settings.scss";
+
+import BaseLayout from "@layouts/BaseLayout.astro";
+import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
+import SettingsForm from "@components/pages/users/@me/settings/SettingsForm";
+
+const wrapper = new APIWrapper(RequestAPIFrom.Server);
+
+const session_cookie = Astro.cookies.get("session_id");
+const session_id = session_cookie?.value || null;
+
+const session = session_id ? await wrapper.getCurrentSession(session_id) : null;
+
+export const prerender = false;
+---
+
+<BaseLayout>
+    <Fragment slot="head">
+        <title>Hortalink | Configurações</title>
+    </Fragment>
+    <Fragment slot="body">
+        <header>
+            <h1>Configurações</h1>
+        </header>
+        <div class="line" />
+        <main>
+            <SettingsForm user={session} client:load />
+        </main>
+    </Fragment>
+</BaseLayout>

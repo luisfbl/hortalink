@@ -15,8 +15,6 @@ const session_id = session_cookie?.value || null
 const session = session_id ? await wrapper.getCurrentSession(session_id) : null
 const products = session && session.profile.is_seller ? await wrapper.getSellerProducts(session.profile.id, 1, session_id) : []
 
-console.log(products)
-
 export const prerender = false
 ---
 

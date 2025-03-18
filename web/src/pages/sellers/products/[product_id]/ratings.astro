@@ -1,10 +1,10 @@
 ---
-import "@styles/pages/users/ratings.scss";
+import "../../../../styles/pages/users/ratings.scss";
 
-import BaseLayout from "@layouts/BaseLayout.astro";
-import RatingsList from "@components/pages/users/products/ratings/Ratings";
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import RatingsList from "../../../../components/pages/users/products/ratings/Ratings";
 
-import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
+import APIWrapper, { RequestAPIFrom } from "../../../../API/Wrapper";
 
 const api = new APIWrapper(RequestAPIFrom.Server)
 

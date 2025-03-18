@@ -1,15 +1,15 @@
 ---
-import "@styles/pages/users/product.scss";
+import "../../../styles/pages/users/product.scss";
 
-import BaseLayout from "@layouts/BaseLayout.astro";
-import Header from "@components/pages/users/products/header/Header.astro";
-import Body from "@components/pages/users/products/body/Body.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Header from "../../../components/pages/users/products/header/Header.astro";
+import Body from "../../../components/pages/users/products/body/Body.astro";
 
-import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
+import APIWrapper, { RequestAPIFrom } from "../../../API/Wrapper";
 
 const api = new APIWrapper(RequestAPIFrom.Server)
 
-const { user_id, product_id } = Astro.params
+const { product_id } = Astro.params
 const session = Astro.cookies.get("session_id")
 
 const product = await api.getProduct(Number(product_id), session.value)

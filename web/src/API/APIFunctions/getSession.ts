@@ -8,7 +8,6 @@ function getSession(oauth_type: string, code: string, state: string) {
             credentials: "include"
         }).then(request => {
             const ok = request.ok
-            console.log(request)
             request.json().then(data => {
                 if(!ok) {
                     reject(data)

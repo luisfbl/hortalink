@@ -1,6 +1,6 @@
 import type { Seller } from "@interfaces/Seller";
 import { useStore } from "@nanostores/react";
-import SelectionStore, { Selection } from "../SelectionStore";
+import SelectionStore, { Selection } from "@stores/pages/SelectionStore";
 import Products from "@layouts/Products";
 import Product from "@components/Product";
 

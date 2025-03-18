@@ -1,0 +1,50 @@
+---
+import "../../styles/pages/users/@me.scss";
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProfileCard from "../../components/pages/users/seller/ProfileCard";
+
+import Selector from "../../components/pages/users/Selector";
+import SellerProductsSection from "../../components/pages/users/seller/sections/ProductsSection";
+import SellerSchedulesSection from "../../components/pages/users/seller/sections/SchedulesSection";
+import SellerRatingsSection from "../../components/pages/users/seller/sections/RatingsSection";
+import APIWrapper, { RequestAPIFrom } from "../../API/Wrapper";
+
+const api = new APIWrapper(RequestAPIFrom.Server)
+
+const { user_id } = Astro.params
+const session = Astro.cookies.get("session_id")
+
+const requests = await Promise.all([
+    api.getSeller(Number(user_id), session.value),
+    api.getSellerSchedules(Number(user_id), session.value),
+    api.getSellerRatings(Number(user_id), 1, session.value)
+])
+
+const seller = requests[0]
+const schedules = requests[1]
+const ratings = requests[2]
+---
+
+<BaseLayout>
+    <Fragment slot="head">
+        <title>Hortalink | Perfil do vendedor</title>
+    </Fragment>
+    <Fragment slot="body">
+        <header>
+            <div class="background" />
+            <ProfileCard seller={seller} />
+        </header>
+        <main>
+            <Selector is_seller={seller?.profile?.is_seller || false} me_info={false} client:load />
+            <SellerRatingsSection ratings={ratings} client:load />
+            {
+                seller.profile.is_seller &&
+                    <>
+                        <SellerProductsSection seller={seller} client:load />
+                        <SellerSchedulesSection schedules={schedules} client:load />
+                    </>
+            }
+        </main>
+    </Fragment>
+</BaseLayout>

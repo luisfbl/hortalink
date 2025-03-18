@@ -1,33 +1,43 @@
-import { useStore } from "@nanostores/react"
-import Session from "@stores/Session"
+import type {Session} from "@interfaces/Session.ts";
 
-export default function ProfileCard() {
-    const sessionData = useStore(Session)
-
+export default function ProfileCard({ profile }: Session) {
     return (
         <div className="profile_card">
             <div className="img_container">
                 <img
-                    src={`${sessionData ? `${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${sessionData.profile.id}/${sessionData.profile.avatar}.png?size=128` : ``}`}
+                    src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${profile.id}/${profile.avatar}.png?size=128`}
                     width={113}
                     height={113}
                     alt="Sua foto de perfil"
                 />
             </div>
-            <h2>{sessionData && sessionData.profile.name} {!sessionData && "..."}</h2>
+            <h2>{profile.name}</h2>
             <div className="stats">
-                <div>
-                    <p className="title">{sessionData && sessionData.orders.length}</p>
-                    <p>Pedidos</p>
-                </div>
-                <div>
-                    <p className="title">0</p>
-                    <p>Avaliações</p>
-                </div>
-                <div>
-                    <p className="title">0</p>
-                    <p>Seguindo</p>
-                </div>
+                {
+                    profile.is_seller ?
+                        <div>
+                            <p className="title">{profile.orders_made || 0}</p>
+                            <p>Pedidos</p>
+                        </div>
+                        :
+                        <div>
+                            <p className="title">{profile.orders_received || 0}</p>
+                            <p>Pedidos</p>
+                        </div>
+                }
+
+                {
+                    profile.is_seller ?
+                        <div>
+                            <p className="title">{profile.followers || 0}</p>
+                            <p>Seguidores</p>
+                        </div>
+                            :
+                        <div>
+                            <p className="title">{profile.following || 0}</p>
+                            <p>Seguindo</p>
+                        </div>
+                }
             </div>
         </div>
     )

@@ -1,7 +1,6 @@
-import SelectionStore, { Selection } from "../SelectionStore";
+import SelectionStore, { Selection } from "@stores/pages/SelectionStore";
 
 import UserRatings from "@layouts/UserRatings";
-import UserRating from "@components/UserRating";
 import { useStore } from "@nanostores/react";
 import type { IndividualRating } from "@interfaces/Product";
 import ResumedUserRating from "@components/ResumedUserRating";
@@ -20,7 +19,7 @@ export default function SellerRatingsSection(props: { ratings: IndividualRating[
                 }
             </UserRatings>
         )
-    } else {
-        return <></>
     }
+
+    return <></>
 }

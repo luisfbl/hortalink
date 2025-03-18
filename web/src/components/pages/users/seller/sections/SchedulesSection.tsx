@@ -2,7 +2,7 @@ import SellerSchedules from "@layouts/SellerSchedules";
 import SellerScheduleGroup from "@components/sellerScheduleGroup";
 import type { Schedule } from "@interfaces/Schedule";
 import { useStore } from "@nanostores/react";
-import SelectionStore, { Selection } from "../SelectionStore";
+import SelectionStore, { Selection } from "@stores/pages/SelectionStore";
 
 export default function SellerSchedulesSection(props: { schedules: Schedule[] }) {
     const selected = useStore(SelectionStore.sectionSelection)

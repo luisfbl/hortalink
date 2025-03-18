@@ -15,7 +15,6 @@ const session_id = session_cookie?.value || null
 const session = session_id ? await wrapper.getCurrentSession(session_id) : null
 const schedules = session ? await wrapper.getSellerSchedules(session.profile.id, session_id) : null
 
-console.log(schedules)
 ---
 
 <BaseLayout>

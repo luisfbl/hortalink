@@ -23,21 +23,21 @@ class APIWrapper<F extends RequestAPIFrom> {
         this.from = from
     }
 
-    async getCurrentSession(session_id?: F extends RequestAPIFrom.Server ? string : never): Promise<User> {
+    async getCurrentSession(session_id?: F extends RequestAPIFrom.Server ? string : never, extended = false): Promise<User> {
         switch(this.from) {
             case RequestAPIFrom.Client:
-                return this.getCurrentSessionFromClient()
+                return this.getCurrentSessionFromClient(extended)
             case RequestAPIFrom.Server:
-                return this.getCurrentSessionFromServer(session_id)
+                return this.getCurrentSessionFromServer(session_id, extended)
         }
     }
 
-    private async getCurrentSessionFromClient(): Promise<User> {
-        return await RequestAPI(this.from, "/v1/users/@me?extended=false", null, "include") as User
+    private async getCurrentSessionFromClient(extended = false): Promise<User> {
+        return await RequestAPI(this.from, `/v1/users/@me?extended=${extended}`, null, "include") as User
     }
 
-    private async getCurrentSessionFromServer(session_id: string): Promise<User> {
-        return await RequestAPI(this.from, "/v1/users/@me?extended=false", null, "include", {
+    private async getCurrentSessionFromServer(session_id: string, extended = false): Promise<User> {
+        return await RequestAPI(this.from, `/v1/users/@me?extended=${extended}`, null, "include", {
             'Cookie': `session_id=${session_id}`
         }) as User
     }

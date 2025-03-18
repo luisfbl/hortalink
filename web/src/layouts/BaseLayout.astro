@@ -5,7 +5,6 @@ import ClientNavbar from "@components/ClientNavbar.astro";
 import APIWrapper, {RequestAPIFrom} from "../API/Wrapper";
 import SellerNavbar from "@components/SellerNavbar.astro";
 import Session from "../stores/Session";
-import SessionInitializer from "@utils/SessionInitializer";
 
 interface Props {
     no_nav?: boolean
@@ -22,7 +21,11 @@ if (!user) {
     user = session_id ? await wrapper.getCurrentSession(session_id) : null
     Session.set(user)
 } else {
-    user = Session.get()
+    if (!session_id) {
+        Session.set(null)
+    } else {
+        user = Session.get()
+    }
 }
 
 export const prerender = false
@@ -40,6 +43,4 @@ export const prerender = false
         }
         <slot name="body"/>
     </div>
-
-    <SessionInitializer userData={user} client:load />
 </body>

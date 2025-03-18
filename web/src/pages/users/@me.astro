@@ -4,9 +4,17 @@ import "@styles/pages/users/@me.scss";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import ProfileCard from "@components/pages/users/@me/ProfileCard";
 
-import Selector from "@components/pages/users/@me/Selector";
+import Selector from "../../components/pages/users/Selector";
 import Orders from "@components/pages/users/@me/Orders";
 import UserRatingsSection from "@components/pages/users/@me/sections/Ratings";
+
+import SellerRatingsSection from "../../components/pages/users/seller/sections/RatingsSection";
+import APIWrapper, {RequestAPIFrom} from "../../API/Wrapper";
+
+const api = new APIWrapper(RequestAPIFrom.Server)
+const session_cookie = Astro.cookies.get("session_id")
+const session_id = session_cookie?.value || null
+const user = await api.getCurrentSession(session_id, true)
 ---
 
 <BaseLayout>
@@ -15,13 +23,25 @@ import UserRatingsSection from "@components/pages/users/@me/sections/Ratings";
     </Fragment>
     <Fragment slot="body">
         <header>
-            <div class="background" />
-            <ProfileCard client:load />
+            <div class="background">
+                <a href="/users/@me/settings" class="settings_button">
+                    <img src="/assets/settings.svg" alt="Abrir configurações"/>
+                </a>
+            </div>
+            <ProfileCard profile = {user.profile} client:load />
         </header>
         <main>
-            <Selector client:load />
-            <Orders client:only="react" />
-            <UserRatingsSection client:load />
+            <Selector is_seller={user?.profile?.is_seller || false} me_info={true} client:load />
+            {
+                user.profile.is_seller ?
+                    <>
+                        <SellerRatingsSection ratings={user.reviews} client:load />
+                    </> :
+                    <>
+                        <Orders client:only="react" />
+                        <UserRatingsSection client:load />
+                    </>
+            }
         </main>
     </Fragment>
 </BaseLayout>
