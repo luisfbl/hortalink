@@ -17,6 +17,8 @@ pub struct Schedule {
     end_time: Time,
     #[sqlx(try_from = "i16")]
     day_of_week: WeekDay,
+    longitude: f64,
+    latitude: f64
 }
 
 impl Schedule {

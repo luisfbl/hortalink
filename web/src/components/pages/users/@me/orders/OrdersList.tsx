@@ -4,24 +4,13 @@ import { useEffect, useState } from "react";
 import { OrderType } from "./Orders";
 import OrdersLayout from "@layouts/OrdersLayout";
 
-import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
 import type { SellerOrderProduct, SellerOrder as SellerOrderType } from "@interfaces/Orders";
 import SellerOrder from "@components/SellerOrder";
+import CustomerOrder from "@components/CustomerOrder.tsx";
 
-export default function OrdersList() {
+export default function OrdersList(props: { orders: SellerOrderType[] }) {
+    const orders = props.orders;
     const [orderType, setOrderType] = useState<OrderType>(OrderType.Open)
-    const [orders, setOrders] = useState<SellerOrderType[]>(() => [])
-
-    const api = new APIWrapper(RequestAPIFrom.Client)
-
-    useEffect(() => {
-        async function wrap() {
-            const newOrders = await api.getOrdersFromClient()
-            setOrders(newOrders)
-        }
-
-        wrap()
-    }, [])
 
     return (
         <section className="orders_list_container">
@@ -36,9 +25,7 @@ export default function OrdersList() {
                             return (
                                 <>
                                     {
-                                        order.products.map((product) => (
-                                            <SellerOrder fullOrder={order} orderProduct={product} key={`product-${order.user.id}-${product.product_id}`} />
-                                        ))
+                                        <CustomerOrder order={order} key={`product-${order.user.id}-${order.products.id}`} />
                                     }
                                 </>
                             )

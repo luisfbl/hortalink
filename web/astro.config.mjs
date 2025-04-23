@@ -14,5 +14,8 @@ export default defineConfig({
             port: 80
         }
     },
-    integrations: [react()]
+    integrations: [react()],
+    devToolbar: {
+        enabled: false
+    }
 });

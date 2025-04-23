@@ -1,0 +1,131 @@
+.product-cart-section {
+  background-color: #f2f2f2;
+  padding: 15px;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: 20px auto;
+
+  .cart-heading {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #262626;
+  }
+
+  .cart-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 15px;
+
+    .quantity-selector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%;
+      height: 44px;
+
+      .quantity-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #01794B;
+        color: white;
+        border: none;
+        width: 44px;
+        height: 44px;
+        cursor: pointer;
+
+        &:disabled {
+          background-color: #aaa;
+          cursor: not-allowed;
+        }
+      }
+
+      .quantity-value {
+        flex: 1;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.2em;
+      }
+    }
+
+    .schedule-button {
+      background-color: #01794B;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 1em;
+      cursor: pointer;
+      width: 100%;
+      height: 44px;
+
+      &:hover {
+        background-color: darken(#01794B, 5%);
+      }
+    }
+  }
+
+  .add-to-cart-button {
+    background-color: #01794B;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 15px;
+    font-weight: 600;
+    font-size: 1.1em;
+    cursor: pointer;
+    width: 100%;
+
+    &:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: darken(#01794B, 5%);
+    }
+  }
+}
+
+.success-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #01794B;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
+  z-index: 1000;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+}

@@ -1,10 +1,10 @@
 ---
-import "@styles/pages/cart/cart.scss";
+import "../../../styles/pages/cart/cart.scss";
 
-import BaseLayout from "@layouts/BaseLayout.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
 
-import Header from "@components/pages/cart/Header.astro";
-import CartProducts from "@components/pages/cart/CartProducts";
+import Header from "../../../components/pages/cart/Header.astro";
+import CartProducts from "../../../components/pages/cart/CartProducts";
 ---
 
 <BaseLayout>
@@ -12,7 +12,7 @@ import CartProducts from "@components/pages/cart/CartProducts";
         <title>Hortalink | Carrinho</title>
     </Fragment>
     <Fragment slot="body">
-        <Header />
+        <Header/>
         <main>
             <section class="cart_container">
                 <CartProducts client:only="react"/>

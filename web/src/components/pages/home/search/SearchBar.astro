@@ -18,22 +18,22 @@ import FilterIcon from "./Filter";
                 />
             </div>
         </div>
-        <div class="icon nosearch">
+        <a class="icon nosearch" href="/users/@me/notifications">
             <img
                 src="/assets/bell.svg"
                 alt="Ícone de sino na cor verde. Clique para visualizar notificações."
                 width="28"
                 height="28"
             />
-        </div>
-        <div class="icon nosearch">
+        </a>
+        <a class="icon nosearch" href="/users/@me/chats">
             <img
                 src="/assets/comments-home.svg"
                 alt="Ícone de comentários na cor verde. Clique para visualizar seus chats."
                 width="28"
                 height="28"
             />
-        </div>
+        </a>
         <FilterIcon client:load />
     </section>
     <SearchBarResults client:only="react" />

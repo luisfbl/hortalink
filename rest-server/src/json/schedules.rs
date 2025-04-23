@@ -31,4 +31,5 @@ pub struct UpdateSchedulePayload {
 #[derive(Deserialize)]
 pub struct ScheduleQuery {
     pub day_of_week: Option<WeekDay>,
+    pub product_id: Option<i64>
 }

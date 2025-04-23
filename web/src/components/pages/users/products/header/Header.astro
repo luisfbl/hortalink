@@ -30,7 +30,7 @@ const product = Astro.props.product
                 />
                 <p>{product.product.rating} ({product.product.rating_quantity})</p>
             </a>
-            <a class="schedule_btn" href="/">Ver Agenda</a>
+            <a class="schedule_btn" href={`/users/${product.seller.id}`}>Ver Agenda</a>
         </div>
     </section>
 </header>

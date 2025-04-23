@@ -3,14 +3,18 @@ import Image from "@components/Image";
 import formatDistance from "@utils/formatDistance.ts";
 
 function ItemDist(props: { dist: number }) {
-    return <>{props.dist ? formatDistance(props.dist): "N/A"}</>
+    if (props.dist !== null && props.dist !== undefined && !isNaN(props.dist)) {
+        return <>{formatDistance(props.dist)}</>;
+    }
+
+    return <>N/A</>;
 }
 
 export default function Product(props: { product: Product }) {
-    const productData = props.product
+    const productData = props.product;
 
     return (
-        <a className="product" href={`/sellers/${productData.seller_id}/products/${productData.id}`}>
+        <a className="product" href={`/sellers/products/${productData.id}`}>
             <div className="product_header">
                 <h2>{productData.product.name}</h2>
                 <div className="star">

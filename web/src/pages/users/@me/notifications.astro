@@ -1,0 +1,30 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import NotificationsList from "../../../components/pages/users/@me/NotificationsList";
+import APIWrapper, {RequestAPIFrom} from "../../../API/Wrapper";
+import "@styles/pages/users/@me/notifications.scss";
+
+const wrapper = new APIWrapper(RequestAPIFrom.Server)
+
+const session_cookie = Astro.cookies.get("session_id")
+const session_id = session_cookie?.value || null
+
+const notifications = await wrapper.getNotifications(session_id);
+
+export const prerender = false
+---
+
+<BaseLayout>
+    <Fragment slot="head">
+        <title>Hortalink | Notificações</title>
+    </Fragment>
+    <Fragment slot="body">
+        <header class="notifications_list_header">
+            <h1>Notificações</h1>
+        </header>
+        <div class="border" />
+        <main class="notifications_list_main">
+            <NotificationsList client:load notifications={notifications} />
+        </main>
+    </Fragment>
+</BaseLayout>

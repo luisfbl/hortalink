@@ -5,11 +5,11 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import ProfileCard from "@components/pages/users/@me/ProfileCard";
 
 import Selector from "../../components/pages/users/Selector";
-import Orders from "@components/pages/users/@me/Orders";
 import UserRatingsSection from "@components/pages/users/@me/sections/Ratings";
 
 import SellerRatingsSection from "../../components/pages/users/seller/sections/RatingsSection";
 import APIWrapper, {RequestAPIFrom} from "../../API/Wrapper";
+import OrdersSection from "../../components/pages/users/@me/sections/OrdersSection";
 
 const api = new APIWrapper(RequestAPIFrom.Server)
 const session_cookie = Astro.cookies.get("session_id")
@@ -38,7 +38,7 @@ const user = await api.getCurrentSession(session_id, true)
                         <SellerRatingsSection ratings={user.reviews} client:load />
                     </> :
                     <>
-                        <Orders client:only="react" />
+                        <OrdersSection orders={user.orders} client:load />
                         <UserRatingsSection client:load />
                     </>
             }

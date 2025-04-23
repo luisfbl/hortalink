@@ -37,10 +37,80 @@ export const prerender = false
     <slot name="head" />
 </head>
 <body>
-    <div id="site-container">
+    <div id="site-container" data-session-id={session_id}>
         {
             !nonav && (user?.profile?.is_seller ? <SellerNavbar /> : <ClientNavbar />)
         }
         <slot name="body"/>
     </div>
+
+    <script>
+        import { addNotification, updateNotifications } from "../stores/pages/Notifications";
+        import { addChat, updateChats, addMessage } from "../stores/pages/Chats";
+        import type { Notification } from "@interfaces/Notifications";
+        import type { ChatPreview, ChatMessage } from "@interfaces/Chat";
+        import APIWrapper, { RequestAPIFrom } from "../API/Wrapper";
+        import geoLocation from "../utils/geoLocation";
+
+        geoLocation.watchPosition();
+        const siteContainer = document.getElementById('site-container');
+        const session_id = siteContainer ? siteContainer.getAttribute('data-session-id') : null;
+        const connection = new WebSocket(`${import.meta.env.PUBLIC_WS_URL}`);
+        const API = new APIWrapper(RequestAPIFrom.Client);
+
+        async function initializeStores() {
+            if (session_id) {
+                try {
+                    const notifications = await API.getNotifications(session_id);
+
+                    if (notifications) {
+                        updateNotifications(notifications);
+                    }
+
+                    const chats = await API.getChats(undefined);
+                    if (chats) {
+                        updateChats(chats);
+                    }
+                } catch (error) {
+                    console.error("Failed to initialize stores:", error);
+                }
+            }
+        }
+
+        initializeStores();
+
+        connection.addEventListener("open", () => {
+            const identify = {
+                opcode: 10,
+                d: {
+                    session_id,
+                }
+            }
+
+            connection.send(JSON.stringify(identify))
+        })
+
+        connection.addEventListener("message", (msg) => {
+            const decoded_payload = JSON.parse(msg.data);
+            console.log(decoded_payload);
+
+            if (decoded_payload.t) {
+                switch (decoded_payload.t) {
+                    case "NOTIFICATION_CREATE":
+                        const notification = decoded_payload.d as Notification;
+                        addNotification(notification);
+                        break;
+                    case "CHAT_MESSAGE_CREATE":
+                        const message = decoded_payload.d.message as ChatMessage;
+                        const chatId = decoded_payload.d.chat_id as number;
+                        addMessage(chatId, message);
+                        break;
+                    case "CHAT_CREATE":
+                        const chat = decoded_payload.d as ChatPreview;
+                        addChat(chat);
+                        break;
+                }
+            }
+        })
+    </script>
 </body>

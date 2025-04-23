@@ -4,7 +4,8 @@ interface Order {
     product: {
         id: number,
         name: string,
-        photo: string
+        photo: string,
+        price: number
     },
     status: number
 }

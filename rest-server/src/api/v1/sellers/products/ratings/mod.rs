@@ -17,6 +17,6 @@ pub fn router() -> Router {
             .patch(patch::rating),
         )
         .route("/", post(post::rating))
-        .route_layer(permission_required!(AuthGate, UserRole::Verified, UserRole::Customer))
+        .route_layer(permission_required!(AuthGate, /*UserRole::Verified,*/ UserRole::Customer))
         .route("/", get(get::ratings))
 }

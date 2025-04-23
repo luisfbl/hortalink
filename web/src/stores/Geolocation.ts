@@ -7,9 +7,30 @@ enum GPS_state {
     not_available = "GPS não suportado.",
 }
 
+const position = atom<number[]>(null);
+const state = atom<GPS_state>(GPS_state.loading);
+const updateInProgress = atom<boolean>(false);
+
+const updatePosition = (newPosition: number[]) => {
+    position.set(newPosition);
+    state.set(GPS_state.updated);
+};
+
+const setState = (newState: GPS_state) => {
+    state.set(newState);
+};
+
+const setUpdateInProgress = (inProgress: boolean) => {
+    updateInProgress.set(inProgress);
+};
+
 export default {
-    position: atom<number[]>(null),
-    state: atom<GPS_state>(GPS_state.loading)
+    position,
+    state,
+    updateInProgress,
+    updatePosition,
+    setState,
+    setUpdateInProgress
 }
 
 export {

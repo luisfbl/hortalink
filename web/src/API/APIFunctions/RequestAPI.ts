@@ -28,24 +28,32 @@ function RequestAPI(from: RequestAPIFrom, path: string, searchParams?: URLSearch
     
         const paramsString = searchParams ? searchParams.toString() : null
         const params = paramsString ? "?" + paramsString : ""
-    
-        const request = await fetch(`${base_url}${path}${params}`, {
-            credentials: credentials,
-            headers: headers,
-            method: method,
-            body: body
-        })
-    
-        if(!request.ok) {
-            console.log(request.status)
-            const response = await automaticallyParseResponse(request)
-            return reject(response)
+        
+        const url = `${base_url}${path}${params}`;
+        console.log(`Realizando requisição ${method} para: ${url}`);
+        
+        try {
+            const request = await fetch(url, {
+                credentials: credentials,
+                headers: headers,
+                method: method,
+                body: body
+            });
+
+            if(!request.ok) {
+                const response = await automaticallyParseResponse(request);
+                console.error(`Erro na requisição para ${url}:`, response);
+                return reject(response);
+            }
+        
+            const response = await automaticallyParseResponse(request);
+            console.log(`Resposta recebida de ${url}:`, response);
+            resolve(response);
+        } catch (error) {
+            console.error(`Erro ao fazer requisição para ${url}:`, error);
+            reject(error);
         }
-    
-        const response = await automaticallyParseResponse(request)
-    
-        resolve(response)
-    })    
+    });
 }
 
 export default RequestAPI

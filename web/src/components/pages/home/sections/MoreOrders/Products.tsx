@@ -2,22 +2,23 @@ import type { Product as ProductT } from "@interfaces/Product";
 import { useEffect, useState } from "react";
 
 import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
+import Geolocation from "@stores/Geolocation";
 
 import PaginatedProducts from "@components/PaginatedProducts";
 
-export default function RecentProducts() {
+export default function MoreOrderProducts() {
     const api = new APIWrapper(RequestAPIFrom.Client)
     const [products, setProducts] = useState<ProductT[]>([])
     const [page, setPage] = useState<number>(1)
 
-    async function fetchMore(page: number) {
-        return api.getMoreOrderProducts(page)
+    // Usar esta função para garantir o contexto 'this' correto
+    const fetchMoreProducts = async (page: number) => {
+        return await api.getMoreOrderProducts(page)
     }
 
     useEffect(() => {
         async function run() {
             const data = await api.getMoreOrderProducts(page)
-
             setProducts(data)
         }
         
@@ -28,7 +29,7 @@ export default function RecentProducts() {
         <PaginatedProducts
             products={products}
             setter={setProducts}
-            FetchMore={api.getMoreOrderProducts}
+            FetchMore={fetchMoreProducts}
             slideSize={3}
         />
     )

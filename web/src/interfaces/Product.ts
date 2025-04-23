@@ -103,7 +103,8 @@ interface Cart {
 
 interface CartProduct {
     order_id: number,
-    withdrawn: number,
+    start_time: string,
+    day_of_week: number
     amount: number,
     product_id: number,
     product_name: string,
@@ -121,5 +122,5 @@ export type {
     Rating,
     IndividualRating,
     FullRating,
-    Cart
+    Cart,
 }

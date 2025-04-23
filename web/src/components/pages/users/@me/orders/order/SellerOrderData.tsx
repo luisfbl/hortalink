@@ -3,7 +3,7 @@ import { OrderStatusText } from "@components/SellerOrder";
 import { useState } from "react";
 import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
 
-const UNITS = {
+export const UNITS = {
     0: "kg",
     1: "hg",
     2: "dag",
@@ -53,7 +53,7 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
                 />
                 <div className="text">
                     <h2 style={{ marginBottom: "0.5rem" }}>{props.fullOrder.user.name}</h2>
-                    <p>Entrar em contato</p>
+                    <a href={`/users/@me/chats/${props.fullOrder.user.id}`} className="see_profile">Entrar em contato</a>
                 </div>
                 <a href={`/users/${props.fullOrder.user.id}`} className="see_profile">Ver perfil</a>
             </div>

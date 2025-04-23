@@ -45,7 +45,6 @@ export default function SettingsForm(props: { user: User }) {
         setSaveSuccess(false);
         setErrorMessage("");
 
-        // Validate passwords if changing
         if (newPassword) {
             if (!currentPassword) {
                 setErrorMessage("Por favor, forneça sua senha atual");
@@ -74,19 +73,24 @@ export default function SettingsForm(props: { user: User }) {
             }
 
             if (imageFile) {
-                formData.append("avatar", imageFile);
+                formData.append("image", imageFile);
             }
 
-            // API call would go here
-            // await api.updateUserProfile(formData);
+            const emailNotif = document.getElementById("email_notifications") as HTMLInputElement;
+            const pushNotif = document.getElementById("push_notifications") as HTMLInputElement;
+            
+            const notificationPrefs = {
+                email_notifications: emailNotif.checked,
+                push_notifications: pushNotif.checked
+            };
+            
+            formData.append("notification_preferences", JSON.stringify(notificationPrefs));
 
-            // For now, simulate success
-            setTimeout(() => {
-                setSaveSuccess(true);
-                setCurrentPassword("");
-                setNewPassword("");
-                setConfirmPassword("");
-            }, 500);
+            await api.updateUserProfile(formData);
+            setSaveSuccess(true);
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
 
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -213,7 +217,17 @@ export default function SettingsForm(props: { user: User }) {
 
                 <a href="/users/@me" className="cancel_button">Fechar</a>
 
-                <button type="button" className="logout_button">
+                <button 
+                    type="button" 
+                    className="logout_button"
+                    onClick={() => {
+                        document.cookie.split(";").forEach(cookie => {
+                            const [name] = cookie.trim().split("=");
+                            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+                        });
+                        window.location.href = "/";
+                    }}
+                >
                     Sair da conta
                 </button>
             </section>

@@ -5,7 +5,6 @@ use axum::http::StatusCode;
 use axum_typed_multipart::TypedMultipart;
 use garde::Validate;
 use app_core::image::ImageManager;
-
 use crate::app::auth::AuthSession;
 use crate::app::server::AppState;
 use crate::json::error::ApiError;
@@ -52,6 +51,60 @@ pub async fn me(
 
         hash = Some(ImageManager::new(path).create_image(&format, avatar.contents, 400).await?);
     }
+    
+    if let (Some(current_password), Some(new_password)) = (&payload.current_password, &payload.new_password) {
+        let password_correct: bool = sqlx::query_scalar(
+            "SELECT EXISTS(SELECT 1 FROM users WHERE id = $1 AND password = $2)"
+        )
+        .bind(login_user)
+        .bind(password_auth::generate_hash(current_password))
+        .fetch_one(&state.pool)
+        .await
+        .map_err(|e| ApiError::Custom(
+            StatusCode::INTERNAL_SERVER_ERROR, 
+            format!("Erro ao verificar senha: {}", e)
+        ))?;
+
+        if !password_correct {
+            return Err(ApiError::Custom(
+                StatusCode::UNAUTHORIZED, 
+                "Senha atual incorreta".to_string()
+            ));
+        }
+        
+        sqlx::query(
+            "UPDATE users SET password = crypt($1, gen_salt('bf')) WHERE id = $2"
+        )
+        .bind(new_password)
+        .bind(login_user)
+        .execute(&state.pool)
+        .await
+        .map_err(|e| ApiError::Custom(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Erro ao atualizar senha: {}", e)
+        ))?;
+    }
+    
+    if let (Some(push_notifications), Some(email_notifications)) = (payload.push_notifications, payload.email_notifications) {
+        sqlx::query(
+            r#"
+            UPDATE users
+            SET 
+                email_notifications = $1,
+                push_notifications = $2
+            WHERE id = $3
+            "#
+        )
+        .bind(email_notifications)
+        .bind(push_notifications)
+        .bind(login_user)
+        .execute(&state.pool)
+        .await
+        .map_err(|e| ApiError::Custom(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Erro ao atualizar preferências de notificação: {}", e)
+        ))?;
+    }
 
     sqlx::query(
         r#"
@@ -71,7 +124,10 @@ pub async fn me(
         .bind(login_user)
         .execute(&state.pool)
         .await
-        .unwrap();
+        .map_err(|e| ApiError::Custom(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Erro ao atualizar perfil: {}", e)
+        ))?;
 
     Ok(())
 }

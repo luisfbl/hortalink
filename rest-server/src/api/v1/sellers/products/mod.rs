@@ -17,7 +17,7 @@ pub fn router() -> Router {
             .patch(patch::product)
         )
         .route("/", post(post::product))
-        .route_layer(permission_required!(AuthGate, UserRole::Seller, UserRole::Verified))
+        .route_layer(permission_required!(AuthGate, UserRole::Seller, /*UserRole::Verified*/))
         .route("/", get(get::products))
         .nest("/:product_id/ratings", ratings::router())
 }

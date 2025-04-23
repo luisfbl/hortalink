@@ -1,8 +1,18 @@
 import type { Cart } from "@interfaces/Product";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import {UNITS} from "@components/pages/users/@me/orders/order/SellerOrderData.tsx";
+import ScheduleSelectionModal from "@components/pages/users/products/body/ScheduleModal.tsx";
+import React from "react";
+import type {Schedule} from "@interfaces/Schedule.ts";
 
-export default function CartProduct(props: { cart: Cart }) {
-    const cart = props.cart
+export function CartProduct(props: {
+    cart: Cart,
+    selectedItems: {orderId: number, productId: number}[],
+    toggleItem: (orderId: number, productId: number) => void,
+    updateProductAmount: (orderId: number, amount: number) => Promise<void>,
+    updateProductSchedule: (orderId: number, schedule: Schedule) => Promise<void>,
+}) {
+    const { cart, selectedItems, toggleItem, updateProductAmount, updateProductSchedule } = props;
 
     return (
         <section className="seller_cart" key={`cart-${cart.user.id}`}>
@@ -19,12 +29,41 @@ export default function CartProduct(props: { cart: Cart }) {
             </div>
             {
                 cart.products.map(product => {
-                    const [counter, setCounter] = useState<number>(1)
-                    
+                    const [counter, setCounter] = useState<number>(product.amount || 1);
+                    const timerRef = useRef<NodeJS.Timeout | null>(null);
+                    const isSelected = selectedItems.some(item =>
+                        item.orderId === product.order_id && item.productId === product.product_id
+                    );
+
+                    const handleCounterChange = (newValue: number) => {
+                        setCounter(newValue);
+
+                        if (timerRef.current) {
+                            clearTimeout(timerRef.current);
+                        }
+
+                        timerRef.current = setTimeout(() => {
+                            updateProductAmount(product.order_id, newValue);
+                        }, 2000);
+                    };
+
+                    useEffect(() => {
+                        return () => {
+                            if (timerRef.current) {
+                                clearTimeout(timerRef.current);
+                            }
+                        };
+                    }, []);
+
                     return (
-                        <div className="product" key={`cart-product-${cart.user.id}-${product.product_id}`}>
+                        <div className="product" key={`cart-product-${product.product_id}-${product.order_id}`}>
                             <div>
-                                <input type="checkbox" alt="Checkbox para selecionar ou não o produto." />
+                                <input
+                                    type="checkbox"
+                                    alt="Checkbox para selecionar ou não o produto."
+                                    checked={isSelected}
+                                    onChange={() => toggleItem(product.order_id, product.product_id)}
+                                />
                             </div>
                             <img
                                 className="product_image"
@@ -35,15 +74,24 @@ export default function CartProduct(props: { cart: Cart }) {
                             <div className="product_infos">
                                 <h3>{product.product_name}</h3>
                                 <p>Distância: 1,2km</p>
-                                <p>Valor por {product.unit}: R$ {product.price}</p>
+                                <p>R$ {product.price}/{UNITS[product.unit].toLowerCase()}</p>
                                 <div className="price_container">
                                     <p className="price_label">Valor total</p>
-                                    <p className="price">R$ {(Number(product.price.replace(",", ".")) * counter).toFixed(2)}</p>
+                                    <p className="price">R$ {(Number(product.price.toString().replace(",", ".")) * counter).toFixed(2)}</p>
                                 </div>
                             </div>
                             <div className="selectors">
-                                <WithDrawnSelector />
-                                <Counter counter={counter} setCounter={setCounter} />
+                                <WithDrawnSelector
+                                    product={product}
+                                    sellerId={cart.user.id}
+                                    onScheduleSelected={(schedule) =>
+                                        updateProductSchedule(product.order_id, schedule)
+                                    }
+                                />
+                                <Counter
+                                    counter={counter}
+                                    setCounter={handleCounterChange}
+                                />
                             </div>
                         </div>
                     )
@@ -53,30 +101,83 @@ export default function CartProduct(props: { cart: Cart }) {
     )
 }
 
-function WithDrawnSelector() {
-    return (
-        <section className="withdrawn">
-            <div>
-                <p>02/06 - 08:00</p>
-                <p>Agendar</p>
-            </div>
-            <img
-                src="/assets/white_calendar.svg"
-                width={20}
-                height={20}
+function WithDrawnSelector({ product, sellerId, onScheduleSelected }) {
+    const [showScheduleModal, setShowScheduleModal] = useState(false);
+    const [selectedSchedule, setSelectedSchedule] = useState({
+        id: product.withdrawn,
+        address: "",
+        start_time: product.start_time,
+        end_time: "",
+        day_of_week: product.day_of_week,
+        longitude: 1,
+        latitude: 1
+    });
 
-            />
-        </section>
+    const getNextDayOfWeek = (dayNumber: number) => {
+        if (!dayNumber) return null;
+
+        const today = new Date();
+        const todayDayNumber = today.getDay() || 7;
+        const daysToAdd = (dayNumber + 7 - todayDayNumber) % 7;
+
+        const daysToAddFinal = daysToAdd === 0 ? 7 : daysToAdd;
+
+        const nextDate = new Date();
+        nextDate.setDate(today.getDate() + daysToAddFinal);
+
+        const day = String(nextDate.getDate()).padStart(2, '0');
+        const month = String(nextDate.getMonth() + 1).padStart(2, '0');
+
+        return `${day}/${month}`;
+    };
+
+    const handleScheduleSelected = (schedule: Schedule) => {
+        setSelectedSchedule(schedule);
+        setShowScheduleModal(false);
+
+        onScheduleSelected(schedule);
+    };
+
+    const scheduleDate = getNextDayOfWeek(selectedSchedule.day_of_week);
+    const scheduleTime = selectedSchedule.start_time ? selectedSchedule.start_time.slice(0, 5) : null;
+
+    return (
+        <>
+            <section className="withdrawn" onClick={() => setShowScheduleModal(true)}>
+                <div>
+                    {selectedSchedule.id ? (
+                        <p>{scheduleDate} - {scheduleTime}</p>
+                    ) : (
+                        <p>Selecionar data</p>
+                    )}
+                    <p>Agendar</p>
+                </div>
+                <img
+                    src="/assets/white_calendar.svg"
+                    width={20}
+                    height={20}
+                />
+            </section>
+
+            {showScheduleModal && (
+                <ScheduleSelectionModal
+                    selected={selectedSchedule}
+                    productId={product.product_id}
+                    sellerId={sellerId}
+                    onClose={() => setShowScheduleModal(false)}
+                    onScheduleSelected={handleScheduleSelected}
+                />
+            )}
+        </>
     )
 }
 
-// TODO: alter implementation to increment product count at shared store, to be easy to get selected products, withdraw and count at reserve by user.
-function Counter(props: { counter: number, setCounter: React.Dispatch<React.SetStateAction<number>> }) {
-    const { counter, setCounter } = props
+function Counter(props: { counter: number, setCounter: (value: number) => void }) {
+    const { counter, setCounter } = props;
 
     return (
         <div className="counter quantity">
-            <button className="btn" onClick={() => setCounter(c => Math.max(c - 1, 1))}>
+            <button className="btn" onClick={() => setCounter(Math.max(counter - 1, 1))}>
                 <img
                     src="/assets/minus.svg"
                     width={8.7}
@@ -85,7 +186,7 @@ function Counter(props: { counter: number, setCounter: React.Dispatch<React.SetS
                 />
             </button>
             <p>{counter}</p>
-            <button className="btn" onClick={() => setCounter(c => Math.min(c + 1, 20))}>
+            <button className="btn" onClick={() => setCounter(Math.min(counter + 1, 20))}>
                 <img
                     src="/assets/more.svg"
                     width={8.7}

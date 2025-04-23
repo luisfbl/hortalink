@@ -26,42 +26,11 @@ export default function ChatMessages(props: { pre_rendered: ChatMessage[], sessi
     const [messages, setMessages] = useState<DisplayMessage[]>(sortedMessages.map(msg => {
         return {
             content: msg.content,
-            created_at: new Date(msg.created_at),
+            created_at: new Date(msg.created_at * 1000),
             is_author: msg.is_author,
             viewed: msg.viewed
         }
     }))
-
-    useEffect(() => {
-        const connection = new WebSocket(`${import.meta.env.PUBLIC_WS_URL}`)
-
-        connection.addEventListener("open", () => {
-            const identify = {
-                opcode: 10,
-                d: {
-                    session_id: props.session_id
-                }
-            }
-    
-            connection.send(JSON.stringify(identify))
-        })
-
-        connection.addEventListener("message", (msg) => {
-            const decoded_payload = JSON.parse(msg.data)
-            const notification = decoded_payload.d as MessageNotification
-
-            setMessages((oldMessages) => {
-                const newMessage: DisplayMessage = {
-                    content: notification.content,
-                    created_at: new Date(notification.created_at),
-                    is_author: false,
-                    viewed: true
-                }
-
-                return [...oldMessages, newMessage]
-            })
-        })
-    }, [])
 
     function createMessage(content: string) {
         if(!content || !content.length) {

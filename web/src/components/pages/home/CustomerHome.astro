@@ -25,18 +25,42 @@ import SearchContainer from "./search/SearchContainer.astro";
 <script>
     import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
     import Stores from "@stores/pages/Home";
+    import Geolocation from "@stores/Geolocation";
 
-    const api = new APIWrapper(RequestAPIFrom.Client)
+    const api = new APIWrapper(RequestAPIFrom.Client);
 
-    async function init() {
-        const recents = await api.getRecentProducts()
-        Stores.Products_Recent.set(recents)
+    async function fetchAndUpdateProducts() {
+        const position = Geolocation.position.get();
+        
+        try {
+            const recents = await api.getRecentProducts();
+            console.log(recents)
+
+            if (position && recents.length > 0) {
+                const productIds = recents.map(p => p.id);
+                const distances = await api.getProductsDistance(productIds, position[0], position[1]);
+
+                const updatedProducts = recents.map(product => ({
+                    ...product,
+                    dist: distances[product.id] || null
+                }));
+
+                Stores.Products_Recent.set(updatedProducts);
+            } else {
+                Stores.Products_Recent.set(recents);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar produtos:", error);
+        }
     }
 
-    init()
-</script>
+    fetchAndUpdateProducts();
 
-<script>
+    document.addEventListener('location-updated', async () => {
+        console.log("Evento de localização recebido, atualizando produtos...");
+        await fetchAndUpdateProducts();
+    });
+
     import { screen, Screen } from "./search/Search";
 
     const searchbar = document.querySelector<HTMLInputElement>(".search_global_container .searchbar_container #global__search")
@@ -110,7 +134,6 @@ import SearchContainer from "./search/SearchContainer.astro";
             hideNoSearchIcons()
         }
 
-        
         searchpage.hidden = !(v == Screen.Menu || v == Screen.Results)
         homepage.hidden = !(v == Screen.Home)
     })

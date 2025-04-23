@@ -2,7 +2,6 @@ use axum::body::Bytes;
 use axum_typed_multipart::{FieldData, TryFromMultipart};
 use garde::Validate;
 use serde::{Deserialize, Serialize, Serializer};
-
 use crate::models::cart::OrderPreview;
 use crate::models::customers::CustomerUser;
 use crate::models::products::SellerProductPreview;
@@ -21,6 +20,14 @@ pub struct PatchUserMe {
     pub phone: Option<String>,
     #[garde(email)]
     pub email: Option<String>,
+    #[garde(length(min = 8))]
+    pub current_password: Option<String>,
+    #[garde(length(min = 8))]
+    pub new_password: Option<String>,
+    #[garde(skip)]
+    pub email_notifications: Option<bool>,
+    #[garde(skip)]
+    pub push_notifications: Option<bool>,
 }
 
 #[derive(Serialize)]

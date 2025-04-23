@@ -35,11 +35,11 @@
 
                 .star_content {
                     @include flex();
-                
+
                     gap: 0.1rem;
-                    
+
                     justify-self: end;
-    
+
                     div {
                         font-size: 0.8em;
                     }

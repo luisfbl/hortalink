@@ -12,9 +12,10 @@ import type {
 import type {Schedule, ScheduleApiBody} from "@interfaces/Schedule"
 import type {Seller} from "@interfaces/Seller"
 import type {UserResults} from "@components/pages/home/search/Search"
-import type {SellerOrder} from "@interfaces/Orders"
+import type {Order, SellerOrder} from "@interfaces/Orders"
 import type {ChatMessage, ChatPreview} from "@interfaces/Chat"
 import Geolocation from "../stores/Geolocation"
+import type {Notification} from "@interfaces/Notifications.ts";
 
 class APIWrapper<F extends RequestAPIFrom> {
     private from: F
@@ -48,18 +49,28 @@ class APIWrapper<F extends RequestAPIFrom> {
         searchParams.append("page", String(page))
         searchParams.append("per_page", String(10))
 
-        const data = await RequestAPI(this.from, "/v1/users/@me/home/most_recent", searchParams, "include") as Product[]
-        return this.changeProductsDistance(data)
+        return await RequestAPI(this.from, "/v1/users/@me/home/most_recent", searchParams, "include") as Product[]
     }
 
     public async getMoreOrderProducts(page: number = 1): Promise<Product[]> {
         const searchParams = new URLSearchParams()
+        const position = Geolocation.position.get();
 
         searchParams.append("page", String(page))
         searchParams.append("per_page", String(10))
 
+        if (position) {
+            searchParams.append("latitude", position[0].toString())
+            searchParams.append("longitude", position[1].toString())
+        }
+
         const data = await RequestAPI(this.from, "/v1/users/@me/home/more_orders", searchParams, "include") as Product[]
-        return this.changeProductsDistance(data)
+
+        if (!position) {
+            return this.changeProductsDistance(data)
+        }
+        
+        return data
     }
 
     public async getProducts(filter: ProductFilter): Promise<Product[]> {
@@ -82,7 +93,21 @@ class APIWrapper<F extends RequestAPIFrom> {
         }
 
         const data = await RequestAPI(this.from, "/v1/products", searchParams, "include") as Product[]
+
+        if (filter.latitude && filter.longitude) {
+            return data
+        }
+        
         return this.changeProductsDistance(data)
+    }
+
+    public async getSchedule(schedule_id: number): Promise<Schedule> {
+        return await RequestAPI(
+            this.from,
+            `/v1/sellers/0/schedules/${schedule_id}`,
+            undefined,
+            "include"
+        ) as Schedule;
     }
 
     public async searchUsers(query: string, page: number, per_page: number) {
@@ -280,28 +305,52 @@ class APIWrapper<F extends RequestAPIFrom> {
 
         return data
     }
+    
+    public async addToCart(product_id: number, amount: number, withdrawn?: number): Promise<void> {
+        await RequestAPI(
+            this.from, 
+            `/v1/users/@me/cart`, 
+            undefined, 
+            "include", 
+            { "Content-Type": "application/json" },
+            "POST", 
+            JSON.stringify({ 
+                seller_product_id: product_id, 
+                amount, 
+                withdrawn 
+            })
+        );
+    }
 
-    public async getSellerSchedules(seller_id: number, session_id?: F extends RequestAPIFrom.Server ? string : never): Promise<Schedule[]> {
+    public async getSellerSchedules(seller_id: number, productId: number | null = null, session_id?: F extends RequestAPIFrom.Server ? string : never): Promise<Schedule[]> {
         switch (this.from) {
             case RequestAPIFrom.Server:
-                return await this.getSellerSchedulesFromServer(seller_id, session_id)
+                return await this.getSellerSchedulesFromServer(seller_id, productId, session_id)
             case RequestAPIFrom.Client:
-                return await this.getSellerSchedulesFromClient(seller_id)
+                return await this.getSellerSchedulesFromClient(seller_id, productId)
         }
     }
 
-    private async getSellerSchedulesFromClient(seller_id: number) {
-        const data = await RequestAPI(this.from, `/v1/sellers/${seller_id}/schedules`, undefined, "include") as Schedule[]
+    private async getSellerSchedulesFromClient(seller_id: number, productId: number | null = null) {
+        let path = `/v1/sellers/${seller_id}/schedules`
 
-        return data
+        if (productId != null) {
+            path += `?product_id=${productId}`
+        }
+
+        return await RequestAPI(this.from, path, undefined, "include") as Schedule[]
     }
 
-    private async getSellerSchedulesFromServer(seller_id: number, session_id: string) {
-        const data = await RequestAPI(this.from, `/v1/sellers/${seller_id}/schedules`, undefined, "include", {
+    private async getSellerSchedulesFromServer(seller_id: number, productId: number | null = null, session_id: string) {
+        let path = `/v1/sellers/${seller_id}/schedules`
+
+        if (productId != null) {
+            path += `?product_id=${productId}`
+        }
+
+        return await RequestAPI(this.from, path, undefined, "include", {
             "Cookie": `session_id=${session_id}`
         }) as Schedule[]
-
-        return data
     }
 
     public async getSeller(seller_id: number, session_id: F extends RequestAPIFrom.Server ? string : never): Promise<Seller> {
@@ -440,14 +489,62 @@ class APIWrapper<F extends RequestAPIFrom> {
         params.append("products_id", JSON.stringify(productsId))
         params.append("latitude", latitude.toString())
         params.append("longitude", longitude.toString())
-
-        return await RequestAPI(this.from, `/v1/products/distance`, params, "include")
+        
+        try {
+            const result = await RequestAPI(this.from, `/v1/products/dist`, params, "include");
+            console.log("Resposta da API de distâncias:", result);
+            return result;
+        } catch (error) {
+            console.error("Erro ao obter distâncias:", error);
+            throw error;
+        }
     }
 
     public async getHomeInfo(session_id: string) {
         return await RequestAPI(this.from, `/v1/users/@me/home`, undefined, "include", {
             "Cookie": `session_id=${session_id}`
         }) as Home
+    }
+
+    public async getNotifications(session_id: string) {
+        return await RequestAPI(this.from, `/v1/users/@me/notifications`, undefined, "include", {
+            "Cookie": `session_id=${session_id}`
+        }) as Notification[]
+    }
+    
+    public async updateUserProfile(formData: FormData): Promise<void> {
+        return await RequestAPI(
+            this.from,
+            `/v1/users/@me`,
+            undefined,
+            "include",
+            undefined,
+            "PATCH",
+            formData
+        ) as void;
+    }
+
+    public async updateCartProduct(orderId: number, data: { withdrawn?: number, amount?: number }): Promise<void> {
+        await RequestAPI(
+            this.from,
+            `/v1/users/@me/cart/${orderId}`,
+            null,
+            "include",
+            { "Content-Type": "application/json" },
+            "PATCH",
+            JSON.stringify(data)
+        );
+    }
+
+    public async reserveCartProduct(orderId: number): Promise<void> {
+        await RequestAPI(
+            this.from,
+            `/v1/users/@me/cart/${orderId}/reserve`,
+            null,
+            "include",
+            undefined,
+            "POST"
+        );
     }
 
     private async changeProductsDistance(
@@ -463,7 +560,7 @@ class APIWrapper<F extends RequestAPIFrom> {
 
         return products.map(product => ({
             ...product,
-            distance: distanceData[product.id] || null
+            dist: distanceData[product.id] || null
         }));
     }
 }

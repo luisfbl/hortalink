@@ -27,12 +27,20 @@
         .image {
             @include flex();
 
-            width: 110px;
-            height: 110px;
+            @media (max-width: 768px) {
+                width: 90px;
+                height: 90px;
+            }
+
+            @media (max-width: 480px) {
+                width: 80px;
+                height: 80px;
+            }
+
             border-radius: 50%;
-    
+
             overflow: hidden;
-    
+
             img {
                 display: block;
                 object-fit: cover;

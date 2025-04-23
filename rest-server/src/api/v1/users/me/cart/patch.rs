@@ -38,29 +38,3 @@ pub async fn product(
 
     Ok(())
 }
-
-pub async fn reserve_product(
-    Extension(state): Extension<AppState>,
-    Path(order_id): Path<i32>,
-    auth_session: AuthSession,
-) -> Result<(), ApiError> {
-    let customer_id = Order::get_customer(&state.pool, order_id)
-        .await?;
-
-    if customer_id != auth_session.user.unwrap().id {
-        return Err(ApiError::Unauthorized("Você não pode fazer isso".to_string()));
-    }
-
-    sqlx::query(
-        r#"
-            UPDATE cart
-            SET status = 1
-            WHERE id = $1
-        "#
-    )
-        .bind(order_id)
-        .execute(&state.pool)
-        .await?;
-    
-    Ok(())
-}

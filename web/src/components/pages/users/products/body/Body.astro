@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import type { DetailedProduct, Product } from '../../../../../interfaces/Product';
 
 import Rating from '../utils/Rating.astro';
+import CartModal from './CartModal';
 
 interface Props {
     product: DetailedProduct
@@ -35,12 +36,12 @@ const product = Astro.props.product
             </div>
         </div>
         <div class="seller_infos">
-            <a href={`/sellers/${product.seller.id}`}>
+            <a href={`/users/${product.seller.id}`}>
                 <div class="seller_name">
                     <div class="img_container">
                         <Image
                             src=`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${product.seller.id}/${product.seller.avatar}.jpg?size=256`
-                            alt="Foto de perfil do vendedor",
+                            alt="Foto de perfil do vendedor"
                             width={57}
                             height={57}
                         />
@@ -53,7 +54,9 @@ const product = Astro.props.product
                         rating: 4.2
                     }}
                 />
-                </div>
             </a>
+        </div>
     </section>
+
+    <CartModal productId={product.product.id} sellerId={product.seller.id} client:load />
 </main>

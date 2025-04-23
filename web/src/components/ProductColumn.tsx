@@ -64,7 +64,7 @@ export default function ProductColumn(props: { product: Product }) {
     const productData = props.product
 
     return (
-        <a className="product" href={`/sellers/${productData.seller_id}/products/${productData.id}`}>
+        <a className="product" href={`/sellers/products/${productData.id}`}>
             { productData.photo &&
                 <img 
                     src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/products/${productData.id}/${productData.photo.replace("/", "⁄")}.jpg?size=256`}

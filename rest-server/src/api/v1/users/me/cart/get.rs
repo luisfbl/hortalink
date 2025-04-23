@@ -14,6 +14,8 @@ pub async fn products(
             SELECT u.name, u.avatar, sp.seller_id AS user_id,
                 jsonb_agg(json_build_object(
                     'order_id', c.id,
+                    'start_time', ss.start_time,
+                    'day_of_week', ss.day_of_week,
                     'withdrawn', c.withdrawn,
                     'amount', c.amount,
                     'price', sp.price,
@@ -26,7 +28,8 @@ pub async fn products(
             JOIN seller_products sp ON sp.id = c.seller_product_id
             JOIN products p ON sp.product_id = p.id
             JOIN users u ON u.id = sp.seller_id
-            WHERE c.customer_id = $1
+            JOIN schedules ss ON c.withdrawn = ss.id 
+            WHERE c.customer_id = $1 AND c.status = 1
             GROUP BY u.name, u.avatar, sp.seller_id, c.created_at
             ORDER BY c.created_at DESC
         "#

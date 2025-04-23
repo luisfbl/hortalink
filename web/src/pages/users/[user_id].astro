@@ -9,6 +9,7 @@ import SellerProductsSection from "../../components/pages/users/seller/sections/
 import SellerSchedulesSection from "../../components/pages/users/seller/sections/SchedulesSection";
 import SellerRatingsSection from "../../components/pages/users/seller/sections/RatingsSection";
 import APIWrapper, { RequestAPIFrom } from "../../API/Wrapper";
+import OrdersSection from "@components/pages/users/@me/sections/OrdersSection";
 
 const api = new APIWrapper(RequestAPIFrom.Server)
 
@@ -17,7 +18,7 @@ const session = Astro.cookies.get("session_id")
 
 const requests = await Promise.all([
     api.getSeller(Number(user_id), session.value),
-    api.getSellerSchedules(Number(user_id), session.value),
+    api.getSellerSchedules(Number(user_id), null, session.value),
     api.getSellerRatings(Number(user_id), 1, session.value)
 ])
 
