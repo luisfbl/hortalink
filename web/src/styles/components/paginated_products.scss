@@ -1,13 +1,41 @@
 @use "../colors";
 
+$transition-speed: 0.25s;
+
 .paginated_products {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+
+  span {
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    transition: all $transition-speed ease;
+    z-index: 2;
 
-    gap: 0.2rem;
-
-    span {
-        cursor: pointer;
+    &:hover {
+      background-color: #f8f8f8;
+      transform: scale(1.1);
     }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    img {
+      transition: transform $transition-speed ease;
+    }
+  }
 }

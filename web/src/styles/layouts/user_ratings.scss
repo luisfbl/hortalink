@@ -37,6 +37,7 @@
 }
 
 .resumed_rating .header h2 {
+  text-transform: capitalize;
   font-size: 1.1em;
   font-weight: 600;
   color: #262626;
@@ -44,6 +45,7 @@
 }
 
 .resumed_rating .header p {
+  text-transform: capitalize;
   font-size: 0.9em;
   color: colors.$mid_1;
   font-weight: 400;

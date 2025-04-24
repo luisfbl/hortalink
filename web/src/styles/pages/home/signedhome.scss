@@ -1,26 +1,59 @@
 @use "../../colors";
 
+$section-spacing: 2rem;
+$gradient-primary: linear-gradient(135deg, colors.$group1_color_2, colors.$group1_color_3);
+
+@mixin section-title {
+  font-weight: 700;
+  font-size: 1.5em;
+  color: colors.$dark_2;
+  position: relative;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: $gradient-primary;
+    border-radius: 3px;
+  }
+}
+
 .product_section {
-    margin: auto;
-    width: 100%;
-    max-width: 490px;
+  margin: 0 auto $section-spacing;
+  width: 100%;
+  max-width: 540px;
 
-    .section_header {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        align-items: center;
+  .section_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    padding: 0 0.5rem;
 
-        padding-left: 15px;
-        padding-right: 15px;
-
-        h2 {
-            font-size: 1.2em;
-        }
-
-        .more {
-            justify-self: end;
-            color: colors.$dark_1;
-            text-decoration: none;
-        }
+    h2 {
+      @include section-title;
+      padding-bottom: 0.3rem;
+      margin-bottom: 0;
     }
+
+    .more {
+      color: colors.$group1_color_2;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      background-color: rgba(colors.$group1_color_3, 0.1);
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: rgba(colors.$group1_color_3, 0.2);
+      }
+    }
+  }
 }
