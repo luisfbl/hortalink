@@ -2,6 +2,7 @@ import type { SellerOrder, SellerOrderProduct } from "@interfaces/Orders";
 import { OrderStatusText } from "@components/SellerOrder";
 import { useState } from "react";
 import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
+import {getNextDayOfWeek} from "@utils/getNextDayOfWeek.ts";
 
 export const UNITS = {
     0: "kg",
@@ -34,6 +35,18 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
         setModalOpen(false)
     }
 
+    let targetWeekday = getNextDayOfWeek(props.product.withdrawn[0].day_of_week)
+    let currentWeekday = new Date(props.product.created_at)
+    const diff = targetWeekday.getDay() - currentWeekday.getDay();
+    currentWeekday.setDate(currentWeekday.getDate() + diff)
+    let diffDays = currentWeekday.getDay()
+    let relativeText = "";
+    if (diffDays === 0) relativeText = " (hoje)";
+    else if (diffDays === 1) relativeText = " (amanhã)";
+    else if (diffDays > 1) relativeText = ` (daqui a ${diffDays} dias)`;
+    else if (diffDays === -1) relativeText = " (ontem)";
+    else if (diffDays < -1) relativeText = ` (há ${Math.abs(diffDays)} dias)`;
+
     return (
         <main>
             <div id="order_code">
@@ -42,8 +55,15 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
             </div>
             <h2>Dados</h2>
             <p><span className="label_text">Status do pedido:</span> {OrderStatusText[props.product.status] || "Em processamento"}</p>
-            <p><span className="label_text">Retirada:</span> </p>
-            <p className="label_text">Cliente:</p>
+            <p>
+                <span className="label_text">
+                    Retirada em:
+                    <a target="_blank" href={`https://www.google.com/maps/search/?api=1&query=${props.product.withdrawn[0].latitude}%2C${props.product.withdrawn[0].longitude}`}>
+                         {props.product.withdrawn[0].address}
+                    </a>
+                    {relativeText} ás {props.product.withdrawn[0].start_time.slice(0, 5)}
+                </span>
+            </p>
             <div className="client_card">
                 <img
                     src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${props.fullOrder.user.id}/${props.fullOrder.user.avatar}.png?size=128`}
@@ -80,10 +100,6 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
                     </div>
                 ))}
             </div>
-            <div className="line" />
-            <h2>Resumo</h2>
-            <p><span className="label_text">Qt Produtos:</span> {props.fullOrder.products.length}</p>
-            <p><span className="label_text">Total:</span> <span className="price">R$ {total}</span></p>
             { props.product.status == 2 && <button className="update_button" onClick={() => setModalOpen(true)}>Cancelar pedido</button> }
             {
                 modalOpen &&

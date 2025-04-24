@@ -1,11 +1,10 @@
 import ScreenSelectorLayout from "@layouts/common/ScreenSelectorLayout";
 import ScreenSelector from "@components/common/ScreenSelector";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { OrderType } from "./Orders";
 import OrdersLayout from "@layouts/OrdersLayout";
 
-import type { SellerOrderProduct, SellerOrder as SellerOrderType } from "@interfaces/Orders";
-import SellerOrder from "@components/SellerOrder";
+import type { SellerOrder as SellerOrderType } from "@interfaces/Orders";
 import CustomerOrder from "@components/CustomerOrder.tsx";
 
 export default function OrdersList(props: { orders: SellerOrderType[] }) {
@@ -25,7 +24,7 @@ export default function OrdersList(props: { orders: SellerOrderType[] }) {
                             return (
                                 <>
                                     {
-                                        <CustomerOrder order={order} key={`product-${order.user.id}-${order.products.id}`} />
+                                        <CustomerOrder order={order} key={`order-${order.id}-${order.product.id}`} />
                                     }
                                 </>
                             )

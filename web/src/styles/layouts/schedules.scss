@@ -1,52 +1,90 @@
 @use "../colors";
 
-@mixin flex {
+.seller_schedules {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
+    gap: 1.2rem;
+    margin: auto;
+    padding: 0.5rem;
+    width: 100%;
+    max-width: 600px;
 }
 
-.seller_schedules {
-    @include flex();
+.seller_schedule {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    text-align: center;
+    padding: 1.2rem 1.5rem;
+    border-radius: 12px;
+    background-color: rgba(1, 121, 75, 0.12);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
 
-    gap: 0.8rem;
-    margin: auto;
+.seller_schedule::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: colors.$group1_color_2;
+}
 
-    .seller_schedule {
-        @include flex();
-        flex-direction: column;
-        gap: 1rem;
+.seller_schedule:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
 
-        text-align: center;
+.seller_schedule h2 {
+    color: colors.$group1_color_2;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+}
 
-        padding: 10px;
-        background-color: rgba(1, 121, 75, 0.15);
+.seller_schedule p {
+    color: colors.$group1_color_1;
+    font-weight: 500;
+    line-height: 1.4;
+}
 
-        h2 {
-            color: colors.$group1_color_2;
-        }
+.seller_schedule p.address {
+    font-weight: 600;
+    font-size: 1.05em;
+    margin-bottom: 0.5rem;
+}
 
-        p {
-            color: colors.$group1_color_1;
-            font-weight: 600;
-        }
+.seller_schedule.end_week {
+    background-color: rgba(191, 148, 84, 0.15);
+}
 
-        p.address {
-            font-weight: 700;
-            font-size: 1.05em;
-        }
-    }
+.seller_schedule.end_week::before {
+    background-color: colors.$group4_color_2;
+}
 
-    .seller_schedule.end_week {
-        background-color: rgba(191, 148, 84, 0.30);
+.seller_schedule.end_week h2 {
+    color: colors.$group4_color_2;
+}
 
-        h2 {
-            color: colors.$group4_color_2;
-        }
+.seller_schedule.end_week p {
+    color: #9F6105;
+}
 
-        p {
-            color: #9F6105;
-            font-weight: 600;
-        }
-    }
+.seller_schedule .time {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-top: 0.3rem;
+}
+
+.seller_schedule.end_week .time {
+    background-color: rgba(255, 255, 255, 0.6);
 }

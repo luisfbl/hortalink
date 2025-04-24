@@ -4,6 +4,7 @@ import {UNITS} from "@components/pages/users/@me/orders/order/SellerOrderData.ts
 import ScheduleSelectionModal from "@components/pages/users/products/body/ScheduleModal.tsx";
 import React from "react";
 import type {Schedule} from "@interfaces/Schedule.ts";
+import {getNextDayOfWeek} from "@utils/getNextDayOfWeek.ts";
 
 export function CartProduct(props: {
     cart: Cart,
@@ -113,24 +114,6 @@ function WithDrawnSelector({ product, sellerId, onScheduleSelected }) {
         latitude: 1
     });
 
-    const getNextDayOfWeek = (dayNumber: number) => {
-        if (!dayNumber) return null;
-
-        const today = new Date();
-        const todayDayNumber = today.getDay() || 7;
-        const daysToAdd = (dayNumber + 7 - todayDayNumber) % 7;
-
-        const daysToAddFinal = daysToAdd === 0 ? 7 : daysToAdd;
-
-        const nextDate = new Date();
-        nextDate.setDate(today.getDate() + daysToAddFinal);
-
-        const day = String(nextDate.getDate()).padStart(2, '0');
-        const month = String(nextDate.getMonth() + 1).padStart(2, '0');
-
-        return `${day}/${month}`;
-    };
-
     const handleScheduleSelected = (schedule: Schedule) => {
         setSelectedSchedule(schedule);
         setShowScheduleModal(false);
@@ -138,7 +121,8 @@ function WithDrawnSelector({ product, sellerId, onScheduleSelected }) {
         onScheduleSelected(schedule);
     };
 
-    const scheduleDate = getNextDayOfWeek(selectedSchedule.day_of_week);
+    let schedulee = getNextDayOfWeek(selectedSchedule.day_of_week);
+    let scheduleDate = `${String(schedulee.getDay()).padStart(2, '0')}/${String(schedulee.getMonth()).padStart(2, '0')}`
     const scheduleTime = selectedSchedule.start_time ? selectedSchedule.start_time.slice(0, 5) : null;
 
     return (

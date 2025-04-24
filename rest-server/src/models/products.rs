@@ -52,7 +52,9 @@ pub struct SellerProductMinimal {
     id: i64,
     #[sqlx(rename = "product_name")]
     name: String,
-    photo: String
+    photo: String,
+    #[sqlx(default)]
+    price: Option<Decimal>
 }
 
 #[derive(sqlx::FromRow, Serialize)]

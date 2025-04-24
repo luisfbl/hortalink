@@ -1,8 +1,10 @@
+use rust_decimal::Decimal;
 use crate::json::error::ApiError;
 use crate::models::products::SellerProductMinimal;
 use common::entities::CartStatus;
 use serde::Serialize;
 use sqlx::{Pool, Postgres};
+use sqlx::types::chrono::NaiveDateTime;
 
 #[derive(sqlx::FromRow, Serialize)]
 pub struct Order {
@@ -15,6 +17,12 @@ pub struct Order {
 pub struct OrderPreview {
     #[sqlx(rename = "order_id")]
     id: i64,
+    #[sqlx(default)]
+    withdrawn: Option<i64>,
+    #[sqlx(default)]
+    start_time: Option<time::Time>,
+    #[sqlx(default)]
+    created_at: Option<NaiveDateTime>,
     amount: i32,
     #[sqlx(flatten)]
     product: SellerProductMinimal,

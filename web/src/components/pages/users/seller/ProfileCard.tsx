@@ -1,6 +1,4 @@
 import type { Seller } from "@interfaces/Seller"
-import { useStore } from "@nanostores/react"
-import Session from "@stores/Session"
 
 export default function ProfileCard(props: { seller: Seller }) {
     const profile = props.seller.profile

@@ -54,7 +54,9 @@ pub async fn order(
                            'start_time', s.start_time,
                            'end_time', s.end_time,
                            'day_of_week', s.day_of_week,
-                           'address', pl.address
+                           'address', pl.address,
+                           'longitude', ST_X(pl.geolocation),
+                           'latitude', ST_Y(pl.geolocation)
                        )) AS withdrawn
                 FROM cart c
                 LEFT JOIN schedules s ON s.id = c.withdrawn
@@ -71,7 +73,8 @@ pub async fn order(
                        'photo', sp.photos[1],
                        'product_name', p.name,
                        'unit', sp.unit,
-                       'status', c.status
+                       'status', c.status,
+                       'created_at', c.created_at
                    )) AS products
             FROM cart c
             JOIN seller_products sp ON c.seller_product_id = sp.id
