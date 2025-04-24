@@ -2,6 +2,7 @@ import { useState } from "react";
 import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
 import ScheduleSelectionModal from "./ScheduleModal";
 import "@styles/components/cart_modal.scss"
+import type {Schedule} from "@interfaces/Schedule.ts";
 
 interface CartModalProps {
     productId: number;
@@ -35,8 +36,8 @@ export default function CartModal({ productId, sellerId }: CartModalProps) {
         }
     };
 
-    const handleScheduleSelected = (scheduleId: number) => {
-        setSelectedSchedule(scheduleId);
+    const handleScheduleSelected = (schedule: Schedule) => {
+        setSelectedSchedule(schedule.id);
         setShowScheduleModal(false);
         handleAddToCart();
     };
@@ -54,8 +55,8 @@ export default function CartModal({ productId, sellerId }: CartModalProps) {
                     >
                         <img
                             src="/assets/minus.svg"
-                            width={10}
-                            height={10}
+                            width={20}
+                            height={20}
                             alt="Diminuir quantidade"
                         />
                     </button>
@@ -67,8 +68,8 @@ export default function CartModal({ productId, sellerId }: CartModalProps) {
                     >
                         <img
                             src="/assets/more.svg"
-                            width={10}
-                            height={10}
+                            width={20}
+                            height={20}
                             alt="Aumentar quantidade"
                         />
                     </button>

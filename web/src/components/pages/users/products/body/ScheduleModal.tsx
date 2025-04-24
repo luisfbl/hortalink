@@ -63,7 +63,7 @@ export default function ScheduleSelectionModal({ productId, sellerId, selected, 
                         {schedules.map((schedule) => (
                             <div
                                 key={`schedule-${schedule.id}`}
-                                className={`schedule_item ${selectedSchedule.id === schedule.id ? 'selected' : ''}`}
+                                className={`schedule_item ${selectedSchedule ? (selectedSchedule.id === schedule.id ? 'selected' : '') : ''}`}
                                 onClick={() => setSelectedSchedule(schedule)}
                             >
                                 <div className="schedule_details">
@@ -74,8 +74,8 @@ export default function ScheduleSelectionModal({ productId, sellerId, selected, 
                                     </a>
                                 </div>
                                 <div className="schedule_select">
-                                    <button className={`select_btn ${selectedSchedule.id === schedule.id ? 'selected' : ''}`}>
-                                        {selectedSchedule.id === schedule.id ? 'Selecionado' : 'Selecionar'}
+                                    <button className={`select_btn ${selectedSchedule ? (selectedSchedule.id === schedule.id ? 'selected' : '') : ''}`}>
+                                        {selectedSchedule ? (selectedSchedule.id === schedule.id ? 'Selecionado' : 'Selecionar') : 'Selecionar'}
                                     </button>
                                 </div>
                             </div>
