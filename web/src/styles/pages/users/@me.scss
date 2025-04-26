@@ -243,6 +243,15 @@ main {
     max-width: 540px;
     margin: auto;
     padding: 0 15px;
+
+    .products {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+        padding: 0.5rem;
+        max-width: 100%;
+        overflow: visible;
+    }
 }
 
 .order {

@@ -198,98 +198,6 @@ $hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
   }
 }
 
-.products_column {
-  @include flex($direction: column, $align: flex-start);
-  gap: 1rem;
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-
-  .product {
-    @include flex($justify: flex-start, $align: flex-start);
-    width: 100%;
-    padding: 1rem;
-    gap: 1rem;
-    background-color: white;
-    border-radius: $border-radius;
-    box-shadow: $card-shadow;
-    text-decoration: none;
-    color: colors.$dark_1;
-    @include card-hover;
-
-    img {
-      width: 100px;
-      height: 100px;
-      border-radius: $border-radius - 4px;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .product_data {
-      flex: 1;
-      min-width: 0; // Fix for text overflow
-
-      h2 {
-        font-size: 1.1em;
-        font-weight: 700;
-        text-transform: capitalize;
-        margin: 0 0 0.5rem;
-        // For text overflow with ellipsis
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      p {
-        font-size: 0.9em;
-        margin: 0.4rem 0;
-        color: colors.$mid_1;
-      }
-
-      .star {
-        @include flex($justify: flex-start);
-        gap: 0.3rem;
-        margin: 0.5rem 0;
-
-        div {
-          font-size: 0.8em;
-          color: #7F8488;
-          font-weight: 600;
-        }
-      }
-
-      .price {
-        font-size: 1em;
-        font-weight: 800;
-        color: colors.$group1_color_3;
-        margin-top: 0.5rem;
-        background: linear-gradient(120deg, colors.$group1_color_2, colors.$group1_color_3);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        width: fit-content;
-      }
-    }
-
-    .seller_name {
-      align-self: flex-end;
-      margin-top: auto;
-      font-size: 0.85em;
-      color: colors.$mid_1;
-
-      .name {
-        text-transform: capitalize;
-        font-weight: 600;
-        color: colors.$group1_color_2;
-      }
-    }
-
-    &:hover img {
-      transform: scale(1.05);
-    }
-  }
-}
-
 .selection_products {
   @include flex();
   gap: 1.5rem;
@@ -312,7 +220,6 @@ $hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
       color: colors.$group1_color_2;
       text-transform: capitalize;
       margin: 0 0 0.8rem;
-      // For text overflow with ellipsis
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -369,7 +276,6 @@ $hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
   }
 }
 
-// Animations for product cards
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -381,14 +287,12 @@ $hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
   }
 }
 
-// Apply animations to products
 .products .product,
 .products_column .product,
 .selection_products .selection_product {
   animation: fadeInUp 0.5s ease forwards;
 }
 
-// Add animation delay for staggered effect
 @for $i from 1 through 8 {
   .products .product:nth-child(#{$i}),
   .products_column .product:nth-child(#{$i}),
@@ -397,7 +301,6 @@ $hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
   }
 }
 
-// Responsive adjustments
 @media (max-width: 768px) {
   .products .product {
     width: 140px;

@@ -17,7 +17,7 @@
 
         p {
             width: 50%;
-            
+
             padding: 8px 0;
             color: colors.$mid_1;
             border-bottom: 1px solid colors.$light_1;
@@ -36,6 +36,15 @@
         }
 
         margin: 0.8rem 0 1.2rem 0;
+    }
+
+    .products {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+        padding: 0.5rem;
+        max-width: 100%;
+        overflow: visible;
     }
 }
 
@@ -74,17 +83,17 @@
         .user_data {
             h2 {
                 font-size: 1.12em;
-    
+
                 text-transform: capitalize;
             }
-    
+
             .user_rating {
                 @include flex();
                 justify-content: flex-start;
                 color: colors.$light_1;
-    
+
                 gap: 0.3rem;
-    
+
                 p {
                     font-size: 0.8em;
                     font-weight: 600;

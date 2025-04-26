@@ -1,5 +1,3 @@
-import Products from "@layouts/Products";
-import Product from "@components/Product";
 import { useEffect, useState } from "react";
 import type { Product as ProductT } from "@interfaces/Product";
 
@@ -9,10 +7,9 @@ import type { UserResults } from "../Search";
 import { products_result } from "../Search"
 
 import ProductsColumn from "@layouts/ProductsColumn";
-import ProductColumn from "@components/ProductColumn";
-import { useStore } from "@nanostores/react";
 import ScreenSelectorLayout from "@layouts/common/ScreenSelectorLayout";
 import ScreenSelector from "@components/common/ScreenSelector";
+import Product from "@components/Product.tsx";
 
 enum ResultType {
     Products = 1,
@@ -32,7 +29,7 @@ function ProductResults(props: { products: ProductT[] }) {
         <ProductsColumn>
             {
                 products?.map((product) => (
-                    <ProductColumn product={product} key={`result-product-${product.id}`} />
+                    <Product product={product} key={`result-product-${product.id}`} />
                 ))
             }
         </ProductsColumn>
@@ -64,8 +61,8 @@ function SellerResults(props: { users: UserResults[] }) {
                             <h2>{user.name}</h2>
                             <div className="user_rating">
                                 <p style={{ marginTop: "0.3rem" }}>
-                                    {user?.followers || 0} seguidores <br />
-                                    {user?.orders_received || 0} ordens recebidas
+                                    {user?.followers || 0} Seguidores <br />
+                                    {user?.orders_received || 0} Pedidos
                                 </p>
                             </div>
                         </div>

@@ -6,9 +6,6 @@ import type { Product as ProductT } from "@interfaces/Product";
 import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
 import { filter } from "../Search";
 
-import ProductsColumn from "@layouts/ProductsColumn";
-import ProductColumn from "@components/ProductColumn";
-
 export default function Menu() {
     const api = new APIWrapper(RequestAPIFrom.Client)
     const [products, setProducts] = useState<ProductT[]>()
