@@ -3,6 +3,7 @@ import { useStore } from "@nanostores/react";
 import SelectionStore, { Selection } from "@stores/pages/SelectionStore";
 import Products from "@layouts/Products";
 import Product from "@components/Product";
+import "@styles/layouts/products.scss"
 
 export default function SellerProductsSection(props: { seller: Seller }) {
     const selected = useStore(SelectionStore.sectionSelection)
