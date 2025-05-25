@@ -17,7 +17,7 @@ const scheduleId = params.searchParams.get("schedule") || null
 let currentSchedule: Schedule | null = null
 
 if(scheduleId) {
-    const schedules = await wrapper.getSellerSchedules(session.profile.id, session_id)
+    const schedules = await wrapper.getSellerSchedules(session.profile.id, null, session_id)
     currentSchedule = schedules.find(s => {
         return s.id == parseInt(scheduleId)
     })

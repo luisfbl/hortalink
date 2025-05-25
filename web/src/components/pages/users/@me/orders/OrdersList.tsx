@@ -10,7 +10,6 @@ import CustomerOrder from "@components/CustomerOrder.tsx";
 export default function OrdersList(props: { orders: SellerOrderType[] }) {
     const orders = props.orders;
     const [orderType, setOrderType] = useState<OrderType>(OrderType.Open)
-
     return (
         <section className="orders_list_container">
             <ScreenSelectorLayout currentPage={orderType} setCurrentPage={setOrderType}>
@@ -20,7 +19,7 @@ export default function OrdersList(props: { orders: SellerOrderType[] }) {
             {orderType === OrderType.Open && 
                 <OrdersLayout>
                     {
-                        orders.map((order) => {
+                        orders?.map((order) => {
                             return (
                                 <>
                                     {

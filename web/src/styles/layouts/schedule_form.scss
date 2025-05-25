@@ -1,91 +1,467 @@
-@use"../colors";
+@use "../colors";
 
-@mixin flex {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+@mixin flex($direction: row, $justify: center, $align: center) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+}
+
+@mixin modern-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@mixin modern-input {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: colors.$dark_1;
+  padding: 14px 16px;
+  transition: all 0.3s ease;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: colors.$group1_color_2;
+    box-shadow: 0 0 0 3px rgba(colors.$group1_color_2, 0.1);
+    transform: translateY(-1px);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+main, .schedule_form_container {
+  min-height: 100vh;
+  padding: 1rem 1rem 120px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+main .schedule_form_container {
+  padding: 0;
+  background: none;
+  min-height: auto;
 }
 
 header {
-    width: 100%;
-    margin: auto;
+  text-align: center;
+  margin: 2rem 0;
+  width: 100%;
 
-    margin-top: 2rem;
-
-    h1 {
-        text-align: center;
-        font-size: 1.563em;
-
-        color: #262626
-    }
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: colors.$dark_1;
+    margin: 0;
+  }
 }
 
 .line {
-    width: 100%;
-    max-width: 430px !important;
+  width: 100%;
+  max-width: 480px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e1e5e9, transparent);
+  margin: 2rem auto;
+}
+
+.day_selector_card {
+  @include modern-card;
+  max-width: 480px;
+  margin: 0 auto 20px;
+
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: colors.$dark_1;
+    margin-bottom: 16px;
+    @include flex($justify: flex-start);
+    gap: 8px;
+  }
+
+  .days_grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+
+    .day_button {
+      @include flex($direction: column);
+      gap: 2px;
+      padding: 8px 4px;
+      background: rgba(colors.$group1_color_2, 0.05);
+      border: 2px solid rgba(colors.$group1_color_2, 0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-height: 60px;
+
+      .day_label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: colors.$group1_color_2;
+        line-height: 1;
+      }
+
+      .day_name {
+        font-size: 0.625rem;
+        color: #6b7280;
+        font-weight: 500;
+        line-height: 1;
+        text-align: center;
+      }
+
+      &:hover {
+        background: rgba(colors.$group1_color_2, 0.1);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(colors.$group1_color_2, 0.15);
+      }
+
+      &.selected {
+        background: linear-gradient(135deg, colors.$group1_color_2, colors.$group1_color_3);
+        border-color: colors.$group1_color_2;
+        color: white;
+
+        .day_label, .day_name {
+          color: white;
+        }
+      }
+    }
+
+    @media (max-width: 480px) {
+      gap: 4px;
+
+      .day_button {
+        min-height: 50px;
+        padding: 6px 2px;
+
+        .day_label {
+          font-size: 0.7rem;
+        }
+
+        .day_name {
+          font-size: 0.55rem;
+        }
+      }
+    }
+  }
+}
+
+.schedule_form {
+  max-width: 480px;
+  margin: 0 auto;
+
+  .form_section {
+    @include modern-card;
+    margin-bottom: 16px;
+
+    h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: colors.$dark_1;
+      margin-bottom: 16px;
+      @include flex($justify: flex-start);
+      gap: 8px;
+    }
+
+    .input_group {
+      margin-bottom: 12px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: colors.$mid_1;
+        margin-bottom: 6px;
+      }
+
+      input {
+        @include modern-input;
+      }
+    }
+
+    .location_status {
+      margin-top: 6px;
+
+      .status {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 500;
+
+        &.loading {
+          background: rgba(59, 130, 246, 0.1);
+          color: #3b82f6;
+        }
+
+        &.success {
+          background: rgba(34, 197, 94, 0.1);
+          color: #22c55e;
+        }
+
+        &.error {
+          background: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+        }
+      }
+    }
+  }
+
+  .time_inputs {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    gap: 12px;
+
+    .input_group {
+      display: flex;
+      flex-direction: column;
+
+      label {
+        margin-bottom: 6px;
+      }
+
+      input {
+        height: 48px;
+      }
+    }
+
+    .time_separator {
+      font-weight: 600;
+      color: colors.$mid_1;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      text-align: center;
+      align-self: end;
+      padding-bottom: 30px;
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+      gap: 12px;
+
+      .time_separator {
+        text-align: center;
+        padding: 8px 0;
+        align-self: center;
+        order: 2;
+      }
+
+      .input_group:first-child {
+        order: 1;
+      }
+
+      .input_group:last-child {
+        order: 3;
+      }
+    }
+  }
+
+  .checkbox_group {
+    @include flex($justify: flex-start);
+    gap: 12px;
+    background: rgba(colors.$group1_color_2, 0.05);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(colors.$group1_color_2, 0.1);
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: colors.$group1_color_2;
+    }
+
+    label {
+      @include flex($justify: flex-start);
+      gap: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: colors.$dark_1;
+      margin: 0;
+
+      .checkbox_icon {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+.submit_button {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  max-width: 440px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, colors.$group1_color_2, colors.$group1_color_3);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  @include flex();
+  gap: 12px;
+  box-shadow: 0 12px 32px rgba(colors.$group1_color_2, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+
+  &:hover:not(:disabled) {
+    transform: translateX(-50%) translateY(-3px);
+    box-shadow: 0 16px 40px rgba(colors.$group1_color_2, 0.5);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateX(-50%) translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: translateX(-50%);
+  }
+
+  .loading_spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.day_selector_card,
+.form_section {
+  animation: slideInUp 0.6s ease forwards;
+}
+
+.day_selector_card {
+  animation-delay: 0.1s;
+}
+
+.form_section:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.form_section:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.form_section:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@media (max-width: 480px) {
+  main, .schedule_form_container {
+    padding: 0.5rem;
+    padding-bottom: 120px;
+  }
+
+  .day_selector_card,
+  .form_section {
+    padding: 16px 12px;
+    margin-bottom: 12px;
+  }
+
+  header {
+    margin: 1rem 0;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+
+  .line {
+    margin: 1rem auto;
+  }
 }
 
 main {
-    form {
-        width: 100%;
-        max-width: 430px;
-        margin: auto;
+  form {
+    width: 100%;
+    max-width: 480px;
+    margin: auto;
 
-        h2 {
-            color: colors.$mid_1;
-            font-size: 1.25em;
-
-            font-weight: 600;
-            margin: 0.5rem 0;
-        }
-
-        input[type=text], input[type=number], select {
-            width: 100%;
-            max-width: 179px;
-    
-            background-color: transparent;
-    
-            border: 2px solid scale-color($color: colors.$light_1, $alpha: 40%);
-            border-radius: 10px;
-    
-            font-size: 1.2em;
-            color: colors.$mid_1;
-    
-            padding: 8px;
-        }
-
-        input[type=checkbox] {
-            transform: scale(1.3);
-        }
-
-        .inputs_row {
-            @include flex();
-            justify-content: flex-start;
-            gap: 0.5rem;
-
-            width: 100%;
-        }
+    h2 {
+      color: colors.$mid_1;
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0.5rem 0;
     }
+
+    input[type=text], input[type=number], input[type=time], select {
+      @include modern-input;
+      max-width: none;
+    }
+
+    input[type=checkbox] {
+      transform: scale(1.2);
+      accent-color: colors.$group1_color_2;
+    }
+
+    .inputs_row {
+      @include flex();
+      justify-content: flex-start;
+      gap: 0.5rem;
+      width: 100%;
+    }
+  }
 }
 
 .action_button {
-    display: block;
-    position: fixed;
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  max-width: 440px;
+  padding: 18px 24px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, colors.$group1_color_2, colors.$group1_color_3);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
 
-    bottom: 6rem;
-    left: 50%;
-    transform: translateX(-50%);
-
-    width: 100%;
-    max-width: 391px;
-    padding: 15px 10px;
-
-    border: none;
-    border-radius: 8px;
-
-    background-color: colors.$group1_color_2;
-    color: colors.$lightest;
-
-    font-size: 1.1em;
-    font-weight: 600;
+  &:hover {
+    transform: translateX(-50%) translateY(-3px);
+    box-shadow: 0 12px 32px rgba(colors.$group1_color_2, 0.4);
+  }
 }
