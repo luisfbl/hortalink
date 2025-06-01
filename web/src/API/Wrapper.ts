@@ -394,6 +394,14 @@ class APIWrapper<F extends RequestAPIFrom> {
         return data
     }
 
+    async getOrdersFromServer(session_id: string): Promise<SellerOrder[]> {
+        const data = await RequestAPI(this.from, `/v1/users/@me/orders`, undefined, "include", {
+            "Cookie": `session_id=${session_id}`
+        }) as SellerOrder[]
+
+        return data
+    }
+
     async deleteOrder(orderId: number) {
         const data = await RequestAPI(this.from, `/v1/users/@me/orders/${orderId}`, undefined, "include", undefined, "DELETE") as unknown
         

@@ -6,8 +6,6 @@ import type {SellerOrder} from "@interfaces/Orders.ts";
 export default function OrdersSection(props: { orders: SellerOrder[] }) {
     const selected = useStore(SelectionStore.sectionSelection)
 
-    console.log(props.orders)
-
     if(selected === Selection.Orders) {
         return (
             <section className="seller_products_section">

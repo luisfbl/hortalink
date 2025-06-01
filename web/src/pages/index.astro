@@ -1,15 +1,19 @@
 ---
-import "@styles/pages/home/unsigned.scss";
-
 import BaseLayout from "@layouts/BaseLayout.astro";
-
-import Unsigned from "@components/pages/home/Unsigned.astro";
-import CustomerHome from "@components/pages/home/CustomerHome.astro";
 import Session from "../stores/Session";
-import SellerHome from "../components/pages/home/SellerHome.astro";
 
-const session = Session.get()
-export const prerender = false
+const session = Session.get();
+
+let HomeComponent;
+if (session?.profile.is_seller) {
+    HomeComponent = (await import("@components/pages/home/SellerHome.astro")).default;
+} else if (session) {
+    HomeComponent = (await import("@components/pages/home/CustomerHome.astro")).default;
+} else {
+    HomeComponent = (await import("@components/pages/home/Unsigned.astro")).default;
+}
+
+export const prerender = false;
 ---
 
 <BaseLayout>
@@ -17,14 +21,13 @@ export const prerender = false
         <title>Hortalink</title>
     </Fragment>
     <Fragment slot="body">
-        { session && (session.profile.is_seller ? <SellerHome/> : <CustomerHome />) }
-        { !session && <Unsigned /> }
+        <HomeComponent />
 
-        { !session &&
+        {!session &&
             <script define:vars={{ session }}>
                 const navbar = document.querySelector(".navbar_container")
                 navbar.hidden = true
-            </script>
+                </script>
         }
     </Fragment>
 </BaseLayout>

@@ -1,12 +1,14 @@
 ---
-
 import SearchBar from "./search/SearchBar.astro";
 import SearchContainer from "./search/SearchContainer.astro";
+import SellerDashboard from "./SellerDashboard.tsx";
+import "@styles/pages/home/sellerhome.scss";
 ---
 
 <SearchBar />
 <div class="line" style="max-width: 401px;" />
 <div id="homepage">
+    <SellerDashboard client:load />
 </div>
 <div id="searchpage" hidden="true">
     <SearchContainer />
@@ -91,3 +93,15 @@ import SearchContainer from "./search/SearchContainer.astro";
         homepage.hidden = !(v == Screen.Home)
     })
 </script>
+
+<style>
+.line {
+    height: 1px;
+    background-color: #ddd;
+    margin: 10px auto;
+}
+
+#homepage {
+    padding: 0 20px;
+}
+</style>

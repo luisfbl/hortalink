@@ -12,7 +12,7 @@ const wrapper = new APIWrapper(RequestAPIFrom.Server)
 const session_cookie = Astro.cookies.get("session_id")
 const session_id = session_cookie?.value || null
 
-const session = session_id ? await wrapper.getCurrentSession(session_id) : null
+const orders = await wrapper.getOrdersFromServer(session_id)
 
 export const prerender = false
 ---
@@ -25,7 +25,7 @@ export const prerender = false
         <SellerOrdersHeader />
         <div class="line" />
         <main>
-            <OrdersList client:load />
+            <OrdersList orders={orders} client:load />
         </main>
     </Fragment>
 </BaseLayout>
