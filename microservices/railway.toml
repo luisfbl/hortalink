@@ -1,0 +1,8 @@
+# Railway configuration for Microservices service
+[build]
+builder = "dockerfile"
+dockerfilePath = "./microservices/Dockerfile"
+
+[deploy]
+startCommand = "cargo run --release --bin microservices"
+restartPolicyType = "always"

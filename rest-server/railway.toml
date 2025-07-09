@@ -1,0 +1,10 @@
+# Main railway.toml for REST Server service
+[build]
+builder = "dockerfile"
+dockerfilePath = "./rest-server/Dockerfile"
+
+[deploy]
+startCommand = "cargo run --release --bin rest-server"
+restartPolicyType = "always"
+healthcheckPath = "/health"
+healthcheckTimeout = 300

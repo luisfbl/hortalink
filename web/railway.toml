@@ -1,0 +1,8 @@
+# Railway configuration for Web service
+[build]
+builder = "dockerfile"
+dockerfilePath = "./web/Dockerfile"
+
+[deploy]
+startCommand = "pnpm recursive run dev"
+restartPolicyType = "always"

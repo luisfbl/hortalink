@@ -1,8 +1,19 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-import Session from "../stores/Session";
+import APIWrapper, {RequestAPIFrom} from "../API/Wrapper";
 
-const session = Session.get();
+const session_cookie = Astro.cookies.get("session_id")
+const session_id = session_cookie?.value || null
+const wrapper = new APIWrapper(RequestAPIFrom.Server)
+
+let session = null
+if (session_id) {
+    try {
+        session = await wrapper.getCurrentSession(session_id)
+    } catch (error) {
+        console.error('Failed to get current session:', error)
+    }
+}
 
 let HomeComponent;
 if (session?.profile.is_seller) {

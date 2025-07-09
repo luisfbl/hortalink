@@ -566,9 +566,15 @@ class APIWrapper<F extends RequestAPIFrom> {
         const productsId = products.map(product => product.id);
         const distanceData = await this.getProductsDistance(productsId, position[0], position[1]);
 
+        // Converter array de distâncias para objeto key-value
+        const distanceMap = distanceData.reduce((acc, item) => {
+            acc[item.id] = item.dist;
+            return acc;
+        }, {});
+
         return products.map(product => ({
             ...product,
-            dist: distanceData[product.id] || null
+            dist: distanceMap[product.id] || null
         }));
     }
 }

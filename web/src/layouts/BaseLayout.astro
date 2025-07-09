@@ -14,16 +14,18 @@ const session_cookie = Astro.cookies.get("session_id")
 const session_id = session_cookie?.value || null
 const wrapper = new APIWrapper(RequestAPIFrom.Server)
 
-let user = Session.get()
-if (!user) {
-    user = session_id ? await wrapper.getCurrentSession(session_id) : null
-    Session.set(user)
-} else {
-    if (!session_id) {
+let user = null
+if (session_id) {
+    try {
+        user = await wrapper.getCurrentSession(session_id)
+        Session.set(user)
+    } catch (error) {
+        console.error('Failed to get current session:', error)
         Session.set(null)
-    } else {
-        user = Session.get()
+        Astro.cookies.delete('session_id')
     }
+} else {
+    Session.set(null)
 }
 
 let NavbarComponent;

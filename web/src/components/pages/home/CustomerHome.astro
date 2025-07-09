@@ -41,9 +41,15 @@ import SearchContainer from "./search/SearchContainer.astro";
                 const productIds = recents.map(p => p.id);
                 const distances = await api.getProductsDistance(productIds, position[0], position[1]);
 
+                // Converter array de distâncias para objeto key-value
+                const distanceMap = distances.reduce((acc, item) => {
+                    acc[item.id] = item.dist;
+                    return acc;
+                }, {});
+
                 const updatedProducts = recents.map(product => ({
                     ...product,
-                    dist: distances[product.id] || null
+                    dist: distanceMap[product.id] || null
                 }));
 
                 Stores.Products_Recent.set(updatedProducts);
@@ -57,9 +63,11 @@ import SearchContainer from "./search/SearchContainer.astro";
 
     fetchAndUpdateProducts();
 
-    document.addEventListener('location-updated', async () => {
-        console.log("Evento de localização recebido, atualizando produtos...");
-        await fetchAndUpdateProducts();
+    const unsubscribe = Geolocation.position.listen((position) => {
+        if (position) {
+            console.log("Localização atualizada, atualizando produtos...");
+            fetchAndUpdateProducts();
+        }
     });
 
     import { screen, Screen } from "./search/Search";
