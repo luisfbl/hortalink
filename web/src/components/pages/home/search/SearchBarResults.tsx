@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { filter, product_names, products_result, query, Screen, screen } from "./Search";
 import { useStore } from "@nanostores/react";
+import EmptyState from "@components/common/EmptyState";
 
 export default function SearchBarResults() {
     const results = useStore(product_names)

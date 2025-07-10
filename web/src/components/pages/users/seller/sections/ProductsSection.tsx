@@ -3,6 +3,7 @@ import { useStore } from "@nanostores/react";
 import SelectionStore, { Selection } from "@stores/pages/SelectionStore";
 import Products from "@layouts/Products";
 import Product from "@components/Product";
+import EmptyState from "@components/common/EmptyState";
 import "@styles/layouts/products.scss"
 
 export default function SellerProductsSection(props: { seller: Seller }) {
@@ -12,13 +13,21 @@ export default function SellerProductsSection(props: { seller: Seller }) {
     if(selected === Selection.Products) {
         return (    
             <section className="seller_products_section">
-                <Products>
-                    {
-                        products.map(product => {
-                            return <Product product={product} key={`seller-product-${product.id}`} />
-                        })
-                    }
-                </Products>
+                {products.length === 0 ? (
+                    <EmptyState 
+                        message="Este vendedor ainda não possui produtos" 
+                        icon="🛍️" 
+                        className="empty-products" 
+                    />
+                ) : (
+                    <Products>
+                        {
+                            products.map(product => {
+                                return <Product product={product} key={`seller-product-${product.id}`} />
+                            })
+                        }
+                    </Products>
+                )}
             </section>
         )
     } else {

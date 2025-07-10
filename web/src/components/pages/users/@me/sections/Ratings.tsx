@@ -8,6 +8,7 @@ import type { IndividualRating } from "@interfaces/Product";
 import Session from "@stores/Session";
 import { useEffect, useState } from "react";
 import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
+import EmptyState from "@components/common/EmptyState";
 
 export default function UserRatingsSection() {
     const session = useStore(Session)
@@ -29,11 +30,17 @@ export default function UserRatingsSection() {
     if(selection === Selection.Ratings) {
         return (
             <UserRatings>
-                {
+                {ratings.length === 0 ? (
+                    <EmptyState 
+                        message="Você ainda não possui avaliações" 
+                        icon="⭐" 
+                        className="empty-ratings" 
+                    />
+                ) : (
                     ratings.map(rating => {
                         return <UserRating rating={rating} key={`user-ratings-${rating.id}`}/>
                     })
-                }
+                )}
             </UserRatings>
         )
     } else {

@@ -7,7 +7,9 @@ interface Profile {
     orders_made: number | null,
     orders_received: number | null,
     roles: number[],
-    followers: number | null
+    followers: number | null,
+    email?: string,
+    email_notifications?: boolean
 }
 
 export type {

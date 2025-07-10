@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import type {Cart} from "@interfaces/Product.ts";
 import type {Schedule} from "@interfaces/Schedule.ts";
 import {CartProduct} from "@components/pages/cart/CartProduct.tsx";
+import EmptyState from "@components/common/EmptyState";
 
 export default function CartProducts() {
     const api = new APIWrapper(RequestAPIFrom.Client);
@@ -112,6 +113,16 @@ export default function CartProducts() {
 
         return total.toFixed(2);
     };
+
+    if (carts.length === 0) {
+        return (
+            <EmptyState 
+                message="Seu carrinho está vazio" 
+                icon="🛒" 
+                className="empty-cart" 
+            />
+        );
+    }
 
     return (
         <>

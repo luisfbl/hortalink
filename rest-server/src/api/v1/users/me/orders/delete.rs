@@ -13,8 +13,11 @@ pub async fn order(
 ) -> Result<(), ApiError> {
     let seller_id = Order::get_seller(&state.pool, order_id)
         .await?;
+    let customer_id = Order::get_customer(&state.pool, order_id)
+        .await?;
+    let user = auth_session.user.unwrap();
 
-    if seller_id != auth_session.user.unwrap().id {
+    if (seller_id != user.id) && (customer_id != user.id) {
         return Err(ApiError::Unauthorized("Você não pode fazer isso".to_string()));
     }
 

@@ -3,6 +3,7 @@ import type { ChatMessage } from "@interfaces/Chat";
 import { createRef, useEffect, useState } from "react";
 import { useStore } from '@nanostores/react';
 import { ChatMessagesStore, addMessage } from "@stores/pages/Chats";
+import EmptyState from "@components/common/EmptyState";
 
 interface DisplayMessage {
     content: string,
@@ -85,7 +86,13 @@ export default function ChatMessages(props: { pre_rendered: ChatMessage[], sessi
     return (
         <>
             <section className="messages_container">
-                {
+                {messages.length === 0 ? (
+                    <EmptyState 
+                        message="Nenhuma mensagem ainda. Comece a conversa!" 
+                        icon="💬" 
+                        className="empty-messages" 
+                    />
+                ) : (
                     messages.map((message, i) => {
                         const msg_created = `${message.created_at.getHours()}:${message.created_at.getMinutes()}`
 
@@ -98,7 +105,7 @@ export default function ChatMessages(props: { pre_rendered: ChatMessage[], sessi
                             </div>
                         )
                     })
-                }
+                )}
             </section>
             <div className="message_bar">
                 <div className="line" style={{ maxWidth: "400px !important", margin: "0 auto" }} />

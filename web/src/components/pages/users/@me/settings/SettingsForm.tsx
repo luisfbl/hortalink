@@ -5,7 +5,7 @@ import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
 export default function SettingsForm(props: { user: User }) {
     const { user } = props;
     const [name, setName] = useState(user?.profile?.name || "");
-    const [email, setEmail] = useState("");
+    const [email, setEmail] = useState(user?.profile?.email || "");
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -13,6 +13,8 @@ export default function SettingsForm(props: { user: User }) {
     const [errorMessage, setErrorMessage] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [emailNotifications, setEmailNotifications] = useState(user?.profile?.email_notifications ?? true);
+    const [imageError, setImageError] = useState("");
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const api = new APIWrapper(RequestAPIFrom.Client);
@@ -27,16 +29,95 @@ export default function SettingsForm(props: { user: User }) {
         fileInputRef.current?.click();
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleRemoveImage = () => {
+        setImageFile(null);
+        setPreviewImage(null);
+        setImageError("");
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const resizeImage = (file: File, maxSize: number = 400): Promise<File> => {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = () => {
+                // Calculate new dimensions
+                let { width, height } = img;
+                if (width > height) {
+                    if (width > maxSize) {
+                        height = (height * maxSize) / width;
+                        width = maxSize;
+                    }
+                } else {
+                    if (height > maxSize) {
+                        width = (width * maxSize) / height;
+                        height = maxSize;
+                    }
+                }
+                
+                // Set canvas size to square
+                canvas.width = maxSize;
+                canvas.height = maxSize;
+                
+                // Fill with white background
+                ctx!.fillStyle = '#ffffff';
+                ctx!.fillRect(0, 0, maxSize, maxSize);
+                
+                // Center the image
+                const x = (maxSize - width) / 2;
+                const y = (maxSize - height) / 2;
+                
+                ctx!.drawImage(img, x, y, width, height);
+                
+                canvas.toBlob((blob) => {
+                    const resizedFile = new File([blob!], file.name, {
+                        type: 'image/png',
+                        lastModified: Date.now()
+                    });
+                    resolve(resizedFile);
+                }, 'image/png', 0.9);
+            };
+            
+            img.src = URL.createObjectURL(file);
+        });
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        setImageError("");
+        
         if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
-            setImageFile(file);
-
-            const reader = new FileReader();
-            reader.onload = () => {
-                setPreviewImage(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            
+            // Validate file type
+            if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
+                setImageError("Por favor, selecione uma imagem JPEG ou PNG");
+                return;
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setImageError("A imagem deve ter no máximo 5MB");
+                return;
+            }
+            
+            try {
+                // Resize image
+                const resizedFile = await resizeImage(file, 400);
+                setImageFile(resizedFile);
+                
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = () => {
+                    setPreviewImage(reader.result as string);
+                };
+                reader.readAsDataURL(resizedFile);
+            } catch (error) {
+                setImageError("Erro ao processar a imagem");
+            }
         }
     };
 
@@ -76,21 +157,20 @@ export default function SettingsForm(props: { user: User }) {
                 formData.append("image", imageFile);
             }
 
-            const emailNotif = document.getElementById("email_notifications") as HTMLInputElement;
-            const pushNotif = document.getElementById("push_notifications") as HTMLInputElement;
-            
-            const notificationPrefs = {
-                email_notifications: emailNotif.checked,
-                push_notifications: pushNotif.checked
-            };
-            
-            formData.append("notification_preferences", JSON.stringify(notificationPrefs));
+            formData.append("email_notifications", emailNotifications.toString());
 
             await api.updateUserProfile(formData);
             setSaveSuccess(true);
             setCurrentPassword("");
             setNewPassword("");
             setConfirmPassword("");
+            setImageError("");
+            
+            // Reset image file but keep preview if uploaded successfully
+            setImageFile(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
 
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -101,31 +181,48 @@ export default function SettingsForm(props: { user: User }) {
     return (
         <form className="settings_form" onSubmit={handleSubmit}>
             <section className="profile_section">
-                <div className="profile_image" onClick={handleImageClick}>
-                    {previewImage ? (
-                        <img
-                            src={previewImage}
-                            alt="Foto de perfil"
-                            width={120}
-                            height={120}
-                        />
-                    ) : (
-                        <div className="default_image">
-                            {name.charAt(0).toUpperCase()}
+                <div className="profile_image_container">
+                    <div className="profile_image" onClick={handleImageClick}>
+                        {previewImage ? (
+                            <img
+                                src={previewImage}
+                                alt="Foto de perfil"
+                                style={{
+                                    width: '120px',
+                                    height: '120px',
+                                    objectFit: 'cover',
+                                    borderRadius: '50%'
+                                }}
+                            />
+                        ) : (
+                            <div className="default_image">
+                                {name.charAt(0).toUpperCase()}
+                            </div>
+                        )}
+                        <div className="edit_overlay">
+                            <img
+                                src="/assets/pencil.svg"
+                                alt="Editar"
+                            />
                         </div>
-                    )}
-                    <div className="edit_overlay">
-                        <img
-                            src="/assets/pencil.svg"
-                            alt="Editar"
-                        />
                     </div>
+                    {imageError && <p className="image_error">{imageError}</p>}
+                    <p className="image_hint">Clique para alterar foto de perfil</p>
+                    {(previewImage || user?.profile?.avatar) && (
+                        <button 
+                            type="button" 
+                            className="remove_image_button"
+                            onClick={handleRemoveImage}
+                        >
+                            Remover foto
+                        </button>
+                    )}
                 </div>
                 <input
                     type="file"
                     ref={fileInputRef}
                     className="file_input"
-                    accept="image/jpeg, image/png"
+                    accept="image/jpeg,image/jpg,image/png"
                     onChange={handleFileChange}
                 />
             </section>
@@ -193,19 +290,13 @@ export default function SettingsForm(props: { user: User }) {
                         <p className="description">Receba atualizações sobre seus pedidos e produtos favoritos</p>
                     </div>
                     <div className="toggle_switch">
-                        <input type="checkbox" id="email_notifications" defaultChecked />
+                        <input 
+                            type="checkbox" 
+                            id="email_notifications" 
+                            checked={emailNotifications}
+                            onChange={(e) => setEmailNotifications(e.target.checked)}
+                        />
                         <label htmlFor="email_notifications" className="toggle"></label>
-                    </div>
-                </div>
-
-                <div className="toggle_group">
-                    <div className="toggle_label">
-                        <label htmlFor="push_notifications">Notificações push</label>
-                        <p className="description">Receba notificações em tempo real</p>
-                    </div>
-                    <div className="toggle_switch">
-                        <input type="checkbox" id="push_notifications" defaultChecked />
-                        <label htmlFor="push_notifications" className="toggle"></label>
                     </div>
                 </div>
             </section>

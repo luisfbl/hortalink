@@ -6,6 +6,7 @@ import ProductComponent from "@components/Product";
 import React, { useState, useEffect, useRef } from "react";
 
 import Image from "@components/Image";
+import EmptyState from "@components/common/EmptyState";
 
 export default function PaginatedProducts(props: {
     products: Product[],
@@ -100,6 +101,16 @@ export default function PaginatedProducts(props: {
         props.setter(currentData)
 
         return added
+    }
+
+    if (props.products.length === 0) {
+        return (
+            <EmptyState 
+                message="Nenhum produto encontrado" 
+                icon="🛍️" 
+                className="empty-products" 
+            />
+        );
     }
 
     return (

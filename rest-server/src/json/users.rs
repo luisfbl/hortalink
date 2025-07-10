@@ -6,7 +6,7 @@ use crate::models::cart::OrderPreview;
 use crate::models::customers::CustomerUser;
 use crate::models::products::SellerProductPreview;
 use crate::models::ratings::{CustomerRating, ProductRatingInfo};
-use crate::models::sellers::{PublicProfile, SellerUser};
+use crate::models::sellers::{PublicProfile, SellerUser, UserSettingsProfile};
 use crate::models::users::ViewerUser;
 
 #[derive(Validate, TryFromMultipart)]
@@ -33,6 +33,20 @@ pub struct PatchUserMe {
 #[derive(Serialize)]
 pub struct UserResponse {
     pub profile: PublicProfile,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub orders: Option<Vec<OrderPreview>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reviews: Option<Vec<ProductRatingInfo>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "reviews")]
+    pub customer_reviews: Option<Vec<CustomerRating>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub products: Option<Vec<SellerProductPreview>>,
+}
+
+#[derive(Serialize)]
+pub struct UserSettingsResponse {
+    pub profile: UserSettingsProfile,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub orders: Option<Vec<OrderPreview>>,
     #[serde(skip_serializing_if = "Option::is_none")]

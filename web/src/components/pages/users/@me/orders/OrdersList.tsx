@@ -7,6 +7,7 @@ import OrdersLayout from "@layouts/OrdersLayout";
 import type { SellerOrder as SellerOrderType, Order as CustomerOrderType } from "@interfaces/Orders";
 import SellerOrder from "@components/SellerOrder";
 import CustomerOrder from "@components/CustomerOrder";
+import EmptyState from "@components/common/EmptyState";
 
 type OrdersListProps = {
   orders: SellerOrderType[] | CustomerOrderType[];
@@ -31,31 +32,55 @@ export default function OrdersList(props: OrdersListProps) {
     const renderSellerOrders = (filterFn: (status: number) => boolean) => {
         if (!isSellerOrders(orders)) return null;
         
-        return orders.map((order) => (
-            order.products.map((product) => (
-                filterFn(product.status) && (
+        const filteredOrders = orders.flatMap((order) => 
+            order.products.filter(product => filterFn(product.status))
+                .map(product => (
                     <SellerOrder 
                         key={`order-${product.order_id}-${product.product_id}`} 
                         fullOrder={order} 
                         orderProduct={product} 
                     />
-                )
-            ))
-        ));
+                ))
+        );
+
+        return filteredOrders.length > 0 ? filteredOrders : (
+            <EmptyState 
+                message="Nenhum pedido encontrado" 
+                icon="📦" 
+                className="empty-orders" 
+            />
+        );
     };
 
     const renderCustomerOrders = (filterFn: (status: number) => boolean) => {
         if (!isCustomerOrders(orders)) return null;
         
-        return orders.map((order) => (
-            filterFn(order.status) && (
+        const filteredOrders = orders.filter(order => filterFn(order.status))
+            .map(order => (
                 <CustomerOrder 
                     key={`order-${order.id}-${order.product.id}`} 
                     order={order}
                 />
-            )
-        ));
+            ));
+
+        return filteredOrders.length > 0 ? filteredOrders : (
+            <EmptyState 
+                message="Nenhum pedido encontrado" 
+                icon="📦" 
+                className="empty-orders" 
+            />
+        );
     };
+
+    if (orders.length === 0) {
+        return (
+            <EmptyState 
+                message="Você não possui pedidos ainda" 
+                icon="📦" 
+                className="empty-orders" 
+            />
+        );
+    }
 
     return (
         <section className="orders_list_container">
