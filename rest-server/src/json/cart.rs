@@ -7,6 +7,10 @@ pub struct PatchProductCart {
     pub withdrawn: Option<i32>,
     #[garde(range(min = 1, max = 20))]
     pub amount: Option<i32>,
+    #[garde(skip)]
+    pub picked_up: Option<bool>,
+    #[garde(skip)]
+    pub pickup_date: Option<sqlx::types::chrono::NaiveDateTime>,
 }
 
 #[derive(Serialize, Deserialize, Validate)]
@@ -17,4 +21,8 @@ pub struct PostProductCart {
     pub withdrawn: Option<i64>,
     #[garde(range(min = 1, max = 20))]
     pub amount: i32,
+    #[garde(skip)]
+    pub picked_up: Option<bool>,
+    #[garde(skip)]
+    pub pickup_date: Option<sqlx::types::chrono::NaiveDateTime>,
 }

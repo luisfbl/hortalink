@@ -39,6 +39,8 @@ pub async fn product(
         .bind(auth_session.user.unwrap().id)
         .bind(payload.withdrawn)
         .bind(payload.amount)
+        .bind(payload.picked_up.unwrap_or(false))
+        .bind(payload.pickup_date)
         .execute(&state.pool)
         .await?;
 

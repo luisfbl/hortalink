@@ -1,4 +1,5 @@
 import type { SellerOrder, SellerOrderProduct } from "@interfaces/Orders";
+import { getNextDayOfWeek } from "@utils/getNextDayOfWeek.ts";
 
 const OrderClasses = {
     1: "status_pending",
@@ -29,6 +30,20 @@ export default function SellerOrder(props: { fullOrder: SellerOrder, orderProduc
         }
     };
 
+    // Calcular e formatar a data de retirada
+    const formatPickupDate = () => {
+        if (props.orderProduct.withdrawn && props.orderProduct.withdrawn[0]) {
+            const pickupDate = getNextDayOfWeek(props.orderProduct.withdrawn[0].day_of_week);
+            if (pickupDate) {
+                const day = String(pickupDate.getDate()).padStart(2, '0');
+                const month = String(pickupDate.getMonth() + 1).padStart(2, '0');
+                const startTime = props.orderProduct.withdrawn[0].start_time.slice(0, 5);
+                return `${day}/${month} ${startTime}`;
+            }
+        }
+        return "Data de retirada indisponível";
+    };
+
     // Calcular o preço total
     const totalPrice = (props.orderProduct.amount * props.orderProduct.price).toFixed(2);
 
@@ -39,10 +54,18 @@ export default function SellerOrder(props: { fullOrder: SellerOrder, orderProduc
                     <h2 className="order_title">Pedido #{props.orderProduct.order_id}</h2>
                     <p className="order_author">Cliente: {props.fullOrder.user.name}</p>
                 </div>
-                <p className="order_date">{formatDate()}</p>
+                <div>
+                    <p className="order_date">Pedido: {formatDate()}</p>
+                    <p className="order_pickup_date">Retirada: {formatPickupDate()}</p>
+                    {props.orderProduct.picked_up && <p className="order_picked_up">✓ Retirado</p>}
+                </div>
             </div>
             <div className="order_part" style={{ alignItems: "flex-end" }}>
-                <p className="order_price">Valor: R$ {totalPrice}</p>
+                <div>
+                    <p className="order_price">Valor: R$ {totalPrice}</p>
+                    {props.orderProduct.picked_up && <p className="pickup_status picked_up">Retirado</p>}
+                    {!props.orderProduct.picked_up && props.orderProduct.status === 2 && <p className="pickup_status not_picked_up">Não retirado</p>}
+                </div>
                 <div className={`order_status ${OrderClasses[props.orderProduct.status] || "status_processing"}`}>
                     <p>{OrderStatusText[props.orderProduct.status] || "Processando"}</p>
                 </div>

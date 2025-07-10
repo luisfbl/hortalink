@@ -1,8 +1,0 @@
-# Railway configuration for CDN Server service
-[build]
-builder = "dockerfile"
-dockerfilePath = "./cdn-server/Dockerfile"
-
-[deploy]
-startCommand = "cargo run --release --bin cdn-server"
-restartPolicyType = "always"

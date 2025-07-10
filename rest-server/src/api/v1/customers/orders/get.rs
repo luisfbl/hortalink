@@ -30,7 +30,7 @@ pub async fn fetch_orders(customer_id: i32, query: Pagination, pool: &Pool<Postg
             SELECT c.id AS order_id, c.amount,
                 sp.id AS product_id, p.name AS product_name,
                 sp.photos[1] AS photo, c.status, sp.price, c.withdrawn,
-                ss.start_time, c.created_at
+                ss.start_time, c.created_at, c.picked_up, c.pickup_date
             FROM cart c
             JOIN seller_products sp ON sp.id = c.seller_product_id
             JOIN schedules ss ON c.withdrawn = ss.id

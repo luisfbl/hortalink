@@ -1,6 +1,8 @@
 import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
 import type { ChatMessage } from "@interfaces/Chat";
 import { createRef, useEffect, useState } from "react";
+import { useStore } from '@nanostores/react';
+import { ChatMessagesStore, addMessage } from "@stores/pages/Chats";
 
 interface DisplayMessage {
     content: string,
@@ -20,6 +22,7 @@ interface MessageNotification {
 export default function ChatMessages(props: { pre_rendered: ChatMessage[], session_id: string, chat_id: number }) {
     const API = new APIWrapper(RequestAPIFrom.Client)
     const textInputRef = createRef<HTMLInputElement>()
+    const chatMessagesStore = useStore(ChatMessagesStore)
 
     const sortedMessages = props.pre_rendered.sort((a, b) => a.created_at - b.created_at)
     
@@ -32,23 +35,51 @@ export default function ChatMessages(props: { pre_rendered: ChatMessage[], sessi
         }
     }))
 
+    useEffect(() => {
+        if (!chatMessagesStore[props.chat_id] || chatMessagesStore[props.chat_id].length === 0) {
+            import('@stores/pages/Chats').then(({ setMessages: setStoreMessages }) => {
+                setStoreMessages(props.chat_id, props.pre_rendered)
+            })
+        }
+    }, [])
+
+    useEffect(() => {
+        const storeMessages = chatMessagesStore[props.chat_id] || []
+        const displayMessages = storeMessages.map(msg => ({
+            content: msg.content,
+            created_at: new Date(msg.created_at * 1000),
+            is_author: msg.is_author,
+            viewed: msg.viewed
+        }))
+        setMessages(displayMessages)
+    }, [chatMessagesStore, props.chat_id])
+
     function createMessage(content: string) {
         if(!content || !content.length) {
             return
         }
 
         API.createChatMessage(props.chat_id, content, undefined).then(() => {
-            setMessages((oldMessages) => {
-                const newMessage: DisplayMessage = {
-                    content: content,
-                    created_at: new Date(),
-                    is_author: true,
-                    viewed: true
-                }
-    
-                return [...oldMessages, newMessage]
-            })
+            const immediateMessage: DisplayMessage = {
+                content: content,
+                created_at: new Date(),
+                is_author: true,
+                viewed: true
+            }
+            
+            setMessages(prev => [...prev, immediateMessage])
+            
+            if (textInputRef.current) {
+                textInputRef.current.value = ''
+            }
         })
+    }
+    
+    function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            createMessage(textInputRef.current?.value || '')
+        }
     }
 
     return (
@@ -72,14 +103,26 @@ export default function ChatMessages(props: { pre_rendered: ChatMessage[], sessi
             <div className="message_bar">
                 <div className="line" style={{ maxWidth: "400px !important", margin: "0 auto" }} />
                 <div className="bar_items">
-                    <input type="text" className="message_input" ref={textInputRef} />
-                    <button className="send_message" onClick={() => createMessage(textInputRef.current.value)}>
-                        <img
-                            src="/assets/mic_black.svg"
-                            width={28}
-                            height={28}
-                            alt="Ícone de um avião de papel, clique para enviar a mensagem após escrever."
-                        />
+                    <input 
+                        type="text" 
+                        className="message_input" 
+                        ref={textInputRef} 
+                        onKeyDown={handleKeyDown}
+                        placeholder="Digite sua mensagem..."
+                    />
+                    <button className="send_message" onClick={() => createMessage(textInputRef.current?.value || '')}>
+                        <svg
+                            width={24}
+                            height={24}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M2 21l21-9L2 3v7l15 2-15 2v7z"
+                                fill="white"
+                            />
+                        </svg>
                     </button>
                 </div>
             </div>

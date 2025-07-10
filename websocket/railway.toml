@@ -1,8 +1,0 @@
-# Railway configuration for WebSocket service
-[build]
-builder = "dockerfile"
-dockerfilePath = "./websocket/Dockerfile"
-
-[deploy]
-startCommand = "cargo run --release --bin websocket"
-restartPolicyType = "always"

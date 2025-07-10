@@ -7,6 +7,20 @@ use sqlx::{Pool, Postgres};
 use sqlx::types::chrono::NaiveDateTime;
 
 #[derive(sqlx::FromRow, Serialize)]
+pub struct Cart {
+    pub id: i64,
+    pub seller_product_id: i64,
+    pub customer_id: i32,
+    #[sqlx(try_from = "i16")]
+    pub status: CartStatus,
+    pub withdrawn: Option<i64>,
+    pub amount: i32,
+    pub created_at: NaiveDateTime,
+    pub picked_up: bool,
+    pub pickup_date: Option<NaiveDateTime>,
+}
+
+#[derive(sqlx::FromRow, Serialize)]
 pub struct Order {
     #[sqlx(flatten)]
     user: UserPreview,
@@ -28,6 +42,10 @@ pub struct OrderPreview {
     product: SellerProductMinimal,
     #[sqlx(try_from = "i16")]
     status: CartStatus,
+    #[sqlx(default)]
+    picked_up: bool,
+    #[sqlx(default)]
+    pickup_date: Option<NaiveDateTime>,
 }
 
 #[derive(sqlx::FromRow, Serialize)]

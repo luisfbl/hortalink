@@ -33,7 +33,6 @@ export function addMessage(chatId: number, message: ChatMessage): void {
   const currentMessages = ChatMessagesStore.get()[chatId] || [];
   ChatMessagesStore.setKey(chatId, [...currentMessages, message]);
   
-  // Also update last message in chat preview
   const currentChats = ChatsStore.get();
   const chatIndex = currentChats.findIndex(chat => chat.id === chatId);
   

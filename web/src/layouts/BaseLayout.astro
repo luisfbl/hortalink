@@ -62,6 +62,8 @@ export const prerender = false
     const session_id = siteContainer ? siteContainer.getAttribute('data-session-id') : null;
     const connection = new WebSocket(`${import.meta.env.PUBLIC_WS_URL}`);
     const API = new APIWrapper(RequestAPIFrom.Client);
+    
+    let currentUserId = null;
 
     async function initializeStores() {
         if (session_id) {
@@ -76,6 +78,9 @@ export const prerender = false
                 if (chats) {
                     updateChats(chats);
                 }
+                
+                const userSession = await API.getCurrentSession(session_id, false);
+                currentUserId = userSession.id;
             } catch (error) {
                 console.error("Failed to initialize stores:", error);
             }
@@ -97,25 +102,32 @@ export const prerender = false
 
     connection.addEventListener("message", (msg) => {
         const decoded_payload = JSON.parse(msg.data);
-        console.log(decoded_payload);
 
-        if (decoded_payload.t) {
-            switch (decoded_payload.t) {
-                case "NOTIFICATION_CREATE":
+        if (decoded_payload.opcode) {
+            switch (decoded_payload.opcode) {
+                case 11:
                     const notification = decoded_payload.d as Notification;
                     addNotification(notification);
                     break;
-                case "CHAT_MESSAGE_CREATE":
-                    const message = decoded_payload.d.message as ChatMessage;
-                    const chatId = decoded_payload.d.chat_id as number;
+                case 12:
+                    const messageData = decoded_payload.d;
+                    const message: ChatMessage = {
+                        id: messageData.id,
+                        content: messageData.content,
+                        created_at: new Date(messageData.created_at).getTime() / 1000,
+                        is_author: currentUserId === messageData.author_id,
+                        viewed: false
+                    };
+                    
+                    const chatId = messageData.chat;
                     addMessage(chatId, message);
-                    break;
-                case "CHAT_CREATE":
-                    const chat = decoded_payload.d as ChatPreview;
-                    addChat(chat);
                     break;
             }
         }
+    })
+    
+    connection.addEventListener("error", (error) => {
+        console.error('WebSocket error:', error)
     })
 </script>
 </body>

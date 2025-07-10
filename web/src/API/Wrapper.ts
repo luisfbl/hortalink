@@ -402,6 +402,21 @@ class APIWrapper<F extends RequestAPIFrom> {
         return data
     }
 
+    async markOrderAsPickedUp(orderId: number, pickupDate: string): Promise<void> {
+        await RequestAPI(
+            this.from,
+            `/v1/users/@me/orders/${orderId}`,
+            null,
+            "include",
+            { "Content-Type": "application/json" },
+            "PATCH",
+            JSON.stringify({
+                picked_up: true,
+                pickup_date: pickupDate
+            })
+        );
+    }
+
     async deleteOrder(orderId: number) {
         const data = await RequestAPI(this.from, `/v1/users/@me/orders/${orderId}`, undefined, "include", undefined, "DELETE") as unknown
         
@@ -532,7 +547,7 @@ class APIWrapper<F extends RequestAPIFrom> {
         ) as void;
     }
 
-    public async updateCartProduct(orderId: number, data: { withdrawn?: number, amount?: number }): Promise<void> {
+    public async updateCartProduct(orderId: number, data: { withdrawn?: number, amount?: number, picked_up?: boolean, pickup_date?: string }): Promise<void> {
         await RequestAPI(
             this.from,
             `/v1/users/@me/cart/${orderId}`,

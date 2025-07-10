@@ -15,11 +15,18 @@ const session_cookie = Astro.cookies.get("session_id")
 const session_id = session_cookie?.value || null
 
 const order = await API.getOrder(id, session_id).catch(e => null) as any
-const product = order.products.find(p => p.product_id == product_id)
+
+if (!order) {
+    Astro.response.status = 404;
+    Astro.response.statusText = "Order not found";
+    return;
+}
+
+const product = order.products?.find(p => p.product_id == product_id)
 
 if(!product) {
     Astro.response.status = 404;
-    Astro.response.statusText = "Not found";
+    Astro.response.statusText = "Product not found";
 }
 ---
 

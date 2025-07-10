@@ -2,7 +2,7 @@ import type { SellerOrder, SellerOrderProduct } from "@interfaces/Orders";
 import { OrderStatusText } from "@components/SellerOrder";
 import { useState } from "react";
 import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
-import {getNextDayOfWeek} from "@utils/getNextDayOfWeek.ts";
+import { getNextDayOfWeek } from "@utils/getNextDayOfWeek.ts";
 
 export const UNITS = {
     0: "kg",
@@ -18,6 +18,7 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
     const API = new APIWrapper(RequestAPIFrom.Client)
 
     const [modalOpen, setModalOpen] = useState(false)
+    const [pickupModalOpen, setPickupModalOpen] = useState(false)
     let total = 0
 
     for(const product of props.fullOrder.products) {
@@ -35,11 +36,27 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
         setModalOpen(false)
     }
 
-    let targetWeekday = getNextDayOfWeek(props.product.withdrawn[0].day_of_week)
-    let currentWeekday = new Date(props.product.created_at)
-    const diff = targetWeekday.getDay() - currentWeekday.getDay();
-    currentWeekday.setDate(currentWeekday.getDate() + diff)
-    let diffDays = currentWeekday.getDay()
+    async function markAsPickedUp() {
+        try {
+            // Format date as YYYY-MM-DD HH:MM:SS for NaiveDateTime
+            const now = new Date();
+            const pickup_date = now.toISOString().slice(0, 19).replace('T', ' ');
+            
+            await API.markOrderAsPickedUp(props.product.order_id, pickup_date);
+            window.location.reload();
+        } catch (e) {
+            console.error(e);
+            alert("Não foi possível marcar como retirado, acesse o console para ver o erro.");
+        }
+        setPickupModalOpen(false);
+    }
+
+    // Calcular a data de retirada corretamente
+    const pickupDate = getNextDayOfWeek(props.product.withdrawn[0].day_of_week);
+    const today = new Date();
+    const diffTime = pickupDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
     let relativeText = "";
     if (diffDays === 0) relativeText = " (hoje)";
     else if (diffDays === 1) relativeText = " (amanhã)";
@@ -64,6 +81,10 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
                     {relativeText} ás {props.product.withdrawn[0].start_time.slice(0, 5)}
                 </span>
             </p>
+            <p><span className="label_text">Status da retirada:</span> {props.product.picked_up ? "Retirado" : "Não retirado"}</p>
+            {props.product.picked_up && props.product.pickup_date && (
+                <p><span className="label_text">Data da retirada:</span> {new Date(props.product.pickup_date).toLocaleDateString('pt-BR')} {new Date(props.product.pickup_date).toLocaleTimeString('pt-BR')}</p>
+            )}
             <div className="client_card">
                 <img
                     src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${props.fullOrder.user.id}/${props.fullOrder.user.avatar}.png?size=128`}
@@ -100,7 +121,10 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
                     </div>
                 ))}
             </div>
-            { props.product.status == 2 && <button className="update_button" onClick={() => setModalOpen(true)}>Cancelar pedido</button> }
+            <div className="order_actions">
+                { props.product.status == 2 && <button className="update_button" onClick={() => setModalOpen(true)}>Cancelar pedido</button> }
+                { props.product.status == 2 && !props.product.picked_up && <button className="pickup_button" onClick={() => setPickupModalOpen(true)}>Marcar como retirado</button> }
+            </div>
             {
                 modalOpen &&
                 <section className="modal_container">
@@ -120,6 +144,30 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
                             <div className="order_buttons">
                             <button className="order_button order_cancel" onClick={() => setModalOpen(false)}>Não</button>
                             <button className="order_button order_confirm" onClick={confirmDelete}>Sim</button>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+            }
+            {
+                pickupModalOpen &&
+                <section className="modal_container">
+                    <section className="order_modal">
+                        <div className="modal_content">
+                            <section className="modal_header" onClick={() => setPickupModalOpen(false)}>
+                                <h2>Marcar como retirado</h2>
+                                <img
+                                    src="/assets/X.svg"
+                                    width={23}
+                                    height={23}
+                                    alt="Imagem de um X. Clique para fechar a seção de filtros."
+                                    className="close"
+                                />
+                            </section>
+                            <p style={{ margin: "1rem auto", textAlign: "center" }}>Confirmar que o cliente retirou o pedido?</p>
+                            <div className="order_buttons">
+                                <button className="order_button order_cancel" onClick={() => setPickupModalOpen(false)}>Não</button>
+                                <button className="order_button order_confirm" onClick={markAsPickedUp}>Sim</button>
                             </div>
                         </div>
                     </section>
