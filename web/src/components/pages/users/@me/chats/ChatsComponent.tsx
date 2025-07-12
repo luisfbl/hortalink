@@ -71,13 +71,23 @@ function DisplayChatPreview(props: { preview: ChatPreview }) {
     
     return (
         <a className="chat_preview" href={`/users/@me/chats/${props.preview.id}`}>
-            <img 
-                className="user_image"
-                src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${props.preview.user.id}/${props.preview.user.avatar}.png?size=128`}
-                alt={`Foto de perfil de ${props.preview.user.name}`}
-                width="52"
-                height="52"
-            />
+            {props.preview.user.avatar ? (
+                <img 
+                    className="user_image"
+                    src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${props.preview.user.id}/${props.preview.user.avatar}.png?size=128`}
+                    alt={`Foto de perfil de ${props.preview.user.name}`}
+                    width="52"
+                    height="52"
+                />
+            ) : (
+                <img 
+                    className="user_image"
+                    src="/assets/default-picture.svg"
+                    alt="Foto de perfil padrão"
+                    width="52"
+                    height="52"
+                />
+            )}
             <div className="side">
                 <div className="preview_upside">
                     <h2>{props.preview.user.name}</h2>

@@ -76,6 +76,14 @@ pub struct AuthzResp {
     pub code: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Validate)]
+pub struct DeleteAccountRequest {
+    #[garde(length(min = 8, max = 64))]
+    pub password: Option<String>,
+    #[garde(skip)]
+    pub oauth_confirmation: Option<bool>,
+}
+
 impl Serialize for PictureVariant {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

@@ -21,7 +21,10 @@ header {
 }
 
 main {
-    margin-top: 2rem;
+    width: 100%;
+    max-width: 430px;
+    margin: 2rem auto 0 auto;
+    position: relative;
 }
 
 .add_product_button {
@@ -29,7 +32,7 @@ main {
     display: block;
 
     width: fit-content;
-    max-width: 100%;
+    max-width: calc(430px - 3rem);
     padding: 15px 10px;
 
     border: none;
@@ -44,6 +47,15 @@ main {
 
     font-size: 1.1em;
     font-weight: 600;
+}
+
+@media (min-width: 430px) {
+    .add_product_button {
+        left: 50%;
+        right: auto;
+        transform: translateX(calc(-50% + 430px/2 - 1.5rem));
+        max-width: calc(430px - 3rem);
+    }
 }
 
 .line {

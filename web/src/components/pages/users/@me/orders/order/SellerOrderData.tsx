@@ -86,12 +86,21 @@ export default function SellerOrderData(props: { product: SellerOrderProduct, fu
                 <p><span className="label_text">Data da retirada:</span> {new Date(props.product.pickup_date).toLocaleDateString('pt-BR')} {new Date(props.product.pickup_date).toLocaleTimeString('pt-BR')}</p>
             )}
             <div className="client_card">
-                <img
-                    src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${props.fullOrder.user.id}/${props.fullOrder.user.avatar}.png?size=128`}
-                    width={64}
-                    height={64}
-                    className="client_photo"
-                />
+                {props.fullOrder.user.avatar ? (
+                    <img
+                        src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${props.fullOrder.user.id}/${props.fullOrder.user.avatar}.png?size=128`}
+                        width={64}
+                        height={64}
+                        className="client_photo"
+                    />
+                ) : (
+                    <img
+                        src="/assets/default-picture.svg"
+                        width={64}
+                        height={64}
+                        className="client_photo"
+                    />
+                )}
                 <div className="text">
                     <h2 style={{ marginBottom: "0.5rem" }}>{props.fullOrder.user.name}</h2>
                     <a href={`/users/@me/chats/${props.fullOrder.user.id}`} className="see_profile">Entrar em contato</a>

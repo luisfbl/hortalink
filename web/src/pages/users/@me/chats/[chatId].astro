@@ -11,9 +11,12 @@ const session_id = session_cookie?.value || null
 
 const chatId = Astro.params.chatId
 
-//const chats = await wrapper.getChats(session_id).catch(e => [])
-const chatsPreview = await wrapper.getChats(session_id)
-const preview = chatsPreview.find(p => p.id.toString() === chatId)
+let preview;
+try {
+    preview = await wrapper.getChat(Number(chatId), session_id)
+} catch (error) {
+    return Astro.redirect("/users/@me/chats")
+}
 
 const messages = await wrapper.getChatMessages(Number(chatId), 1, 10, session_id)
 

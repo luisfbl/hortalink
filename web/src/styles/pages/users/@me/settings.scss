@@ -284,7 +284,112 @@ main {
                       border: none;
                       margin-top: 2rem;
                   }
+
+                  .delete_account_button {
+                      background-color: #dc2626;
+                      color: colors.$lightest;
+                      border: none;
+                      margin-top: 1rem;
+                      
+                      &:hover {
+                          background-color: #b91c1c;
+                      }
+                  }
               }
           }
       }
+}
+
+.modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal_content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+
+    h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        color: colors.$dark_1;
+        text-align: center;
+    }
+
+    p {
+        margin-bottom: 1rem;
+        color: colors.$mid_1;
+        line-height: 1.5;
+        text-align: center;
+
+        &:last-of-type {
+            font-weight: 600;
+            color: colors.$dark_1;
+        }
+    }
+
+    .password_input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid colors.$light_1;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+
+        &:focus {
+            outline: none;
+            border-color: colors.$group1_color_2;
+            box-shadow: 0 0 0 3px rgba(colors.$group1_color_2, 0.1);
+        }
+    }
+
+    .modal_actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 120px;
+        }
+
+        .cancel_modal_button {
+            background: transparent;
+            border: 1px solid colors.$light_1;
+            color: colors.$mid_1;
+
+            &:hover {
+                background-color: colors.$lightest;
+                border-color: colors.$mid_1;
+            }
+        }
+
+        .confirm_delete_button {
+            background-color: #dc2626;
+            border: none;
+            color: white;
+
+            &:hover {
+                background-color: #b91c1c;
+            }
+        }
+    }
 }

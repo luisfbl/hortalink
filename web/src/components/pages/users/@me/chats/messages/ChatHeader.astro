@@ -2,7 +2,7 @@
 import type { ChatPreview } from '@interfaces/Chat'
 
 interface Props {
-    chatPreview: ChatPreview
+    chatPreview?: ChatPreview
 }
 
 const preview = Astro.props?.chatPreview
@@ -10,13 +10,34 @@ const preview = Astro.props?.chatPreview
 
 <header>
     <div class="header_content">
-        <img
-            class="user_img"
-            src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${preview.user.id}/${preview.user.avatar}.png?size=128`}
-            width={52}
-            height={52}
-        />
-        <h1>{preview.user.name}</h1>
+        <a href="/users/@me/chats" class="back_button" title="Voltar para conversas">
+            <img
+                src="/assets/arrow.svg"
+                alt="Voltar"
+                width={24}
+                height={24}
+                style="transform: rotate(180deg);"
+            />
+        </a>
+        
+        <a href={preview?.user?.id ? `/users/${preview.user.id}` : "#"} class="user_profile_link" title="Ver perfil do usuário">
+            {preview?.user?.avatar ? (
+                <img
+                    class="user_img"
+                    src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${preview.user.id}/${preview.user.avatar}.png?size=128`}
+                    width={52}
+                    height={52}
+                />
+            ) : (
+                <img
+                    class="user_img"
+                    src="/assets/default-picture.svg"
+                    width={52}
+                    height={52}
+                />
+            )}
+            <h1>{preview?.user?.name || "Chat"}</h1>
+        </a>
     </div>
     <div class="line" />
 </header>

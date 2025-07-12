@@ -50,12 +50,21 @@ function SellerResults(props: { users: UserResults[] }) {
                 props.users.map(user => (
                     <a className="user_result" href={`/users/${user.id}`} key={`users-result-${user.id}`}>
                         <div className="user_img">
-                            <img
-                                src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${user.id}/${user.avatar}.png?size=128`}
-                                width={78}
-                                height={78}
-                                alt="Sua foto de perfil"
-                            />
+                            {user.avatar ? (
+                                <img
+                                    src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${user.id}/${user.avatar}.png?size=128`}
+                                    width={78}
+                                    height={78}
+                                    alt="Sua foto de perfil"
+                                />
+                            ) : (
+                                <img
+                                    src="/assets/default-picture.svg"
+                                    width={78}
+                                    height={78}
+                                    alt="Foto de perfil padrão"
+                                />
+                            )}
                         </div>
                         <div className="user_data">
                             <h2>{user.name}</h2>

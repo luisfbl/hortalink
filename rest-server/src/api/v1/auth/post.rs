@@ -94,7 +94,7 @@ pub async fn sign_in(
                 RETURNING id, password, roles, access_token
             "#
         )
-            .bind(payload.name)
+            .bind(payload.name.to_lowercase())
             .bind(payload.email)
             .bind(vec![payload.role.clone() as i16])
             .bind(password_auth::generate_hash(password))

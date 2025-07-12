@@ -59,10 +59,8 @@ pub async fn users(
         let users = sqlx::query_as::<_, PreviewUser>(
             &format!(
                 r#"
-            SELECT u.id AS user_id, u.avatar as user_avatar, u.name as user_name,
-                s.followers, s.orders_received
-            FROM users u
-            JOIN sellers s ON s.user_id = u.id
+            SELECT id AS user_id, avatar as user_avatar, name as user_name
+            FROM users
             WHERE name LIKE '%{}%'
             LIMIT $1 OFFSET $2;
         "#, filter.to_lowercase()

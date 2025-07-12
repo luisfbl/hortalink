@@ -25,13 +25,13 @@ pub async fn schedule(
         r#"
             SELECT id FROM places
             WHERE ST_DWithin(
-                geolocation,
-                ST_SetSRID(ST_MakePoint($1, $2), 4674),
-                250
+                ST_Transform(geolocation, 3857),
+                ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4674), 3857),
+                100
             )
             ORDER BY ST_Distance(
-                geolocation,
-                ST_SetSRID(ST_MakePoint($1, $2), 4674)
+                ST_Transform(geolocation, 3857),
+                ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4674), 3857)
             )
             LIMIT 1
         "#

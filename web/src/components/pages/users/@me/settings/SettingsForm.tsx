@@ -15,6 +15,8 @@ export default function SettingsForm(props: { user: User }) {
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [emailNotifications, setEmailNotifications] = useState(user?.profile?.email_notifications ?? true);
     const [imageError, setImageError] = useState("");
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deletePassword, setDeletePassword] = useState("");
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const api = new APIWrapper(RequestAPIFrom.Client);
@@ -178,6 +180,52 @@ export default function SettingsForm(props: { user: User }) {
         }
     };
 
+    const handleDeleteAccount = async () => {
+        if (user?.profile?.has_password) {
+            if (!deletePassword) {
+                setErrorMessage("Por favor, digite sua senha para confirmar a exclusão");
+                return;
+            }
+        }
+
+        try {
+            const requestBody = user?.profile?.has_password 
+                ? { password: deletePassword }
+                : { oauth_confirmation: true };
+
+            const response = await fetch('/api/v1/auth/account', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro ao excluir conta');
+            }
+
+            try {
+                await fetch('/api/v1/auth/logout', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+            } catch (logoutError) {
+                console.error('Error during logout after account deletion:', logoutError);
+            }
+            window.location.href = "/";
+            
+        } catch (error) {
+            console.error("Error deleting account:", error);
+            setErrorMessage("Erro ao excluir conta. Tente novamente.");
+        }
+
+        setShowDeleteModal(false);
+        setDeletePassword("");
+    };
+
     return (
         <form className="settings_form" onSubmit={handleSubmit}>
             <section className="profile_section">
@@ -195,9 +243,16 @@ export default function SettingsForm(props: { user: User }) {
                                 }}
                             />
                         ) : (
-                            <div className="default_image">
-                                {name.charAt(0).toUpperCase()}
-                            </div>
+                            <img
+                                src="/assets/default-picture.svg"
+                                alt="Foto de perfil padrão"
+                                style={{
+                                    width: '120px',
+                                    height: '120px',
+                                    objectFit: 'cover',
+                                    borderRadius: '50%'
+                                }}
+                            />
                         )}
                         <div className="edit_overlay">
                             <img
@@ -251,36 +306,38 @@ export default function SettingsForm(props: { user: User }) {
                 </div>
             </section>
 
-            <section className="form_section">
-                <h2>Alterar senha</h2>
-                <div className="input_group">
-                    <label htmlFor="current_password">Senha atual</label>
-                    <input
-                        type="password"
-                        id="current_password"
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                    />
-                </div>
-                <div className="input_group">
-                    <label htmlFor="new_password">Nova senha</label>
-                    <input
-                        type="password"
-                        id="new_password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                    />
-                </div>
-                <div className="input_group">
-                    <label htmlFor="confirm_password">Confirmar senha</label>
-                    <input
-                        type="password"
-                        id="confirm_password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
-                </div>
-            </section>
+            {user?.profile?.has_password && (
+                <section className="form_section">
+                    <h2>Alterar senha</h2>
+                    <div className="input_group">
+                        <label htmlFor="current_password">Senha atual</label>
+                        <input
+                            type="password"
+                            id="current_password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                        />
+                    </div>
+                    <div className="input_group">
+                        <label htmlFor="new_password">Nova senha</label>
+                        <input
+                            type="password"
+                            id="new_password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                    </div>
+                    <div className="input_group">
+                        <label htmlFor="confirm_password">Confirmar senha</label>
+                        <input
+                            type="password"
+                            id="confirm_password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                    </div>
+                </section>
+            )}
 
             <section className="form_section">
                 <h2>Preferências de notificação</h2>
@@ -311,17 +368,74 @@ export default function SettingsForm(props: { user: User }) {
                 <button 
                     type="button" 
                     className="logout_button"
-                    onClick={() => {
-                        document.cookie.split(";").forEach(cookie => {
-                            const [name] = cookie.trim().split("=");
-                            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-                        });
+                    onClick={async () => {
+                        try {
+                            await fetch('/api/v1/auth/logout', {
+                                method: 'GET',
+                                credentials: 'include'
+                            });
+                        } catch (error) {
+                            console.error('Error during logout:', error);
+                        }
                         window.location.href = "/";
                     }}
                 >
                     Sair da conta
                 </button>
+
+                <button 
+                    type="button" 
+                    className="delete_account_button"
+                    onClick={() => setShowDeleteModal(true)}
+                >
+                    Excluir conta
+                </button>
             </section>
+
+            {showDeleteModal && (
+                <div className="modal_overlay">
+                    <div className="modal_content">
+                        <h3>Confirmar exclusão de conta</h3>
+                        <p>Esta ação é irreversível. Todos os seus dados serão permanentemente excluídos.</p>
+                        
+                        {user?.profile?.has_password ? (
+                            <>
+                                <p>Digite sua senha para confirmar:</p>
+                                <input
+                                    type="password"
+                                    placeholder="Senha"
+                                    value={deletePassword}
+                                    onChange={(e) => setDeletePassword(e.target.value)}
+                                    className="password_input"
+                                />
+                            </>
+                        ) : (
+                            <p><strong>Confirme que você deseja excluir permanentemente sua conta.</strong></p>
+                        )}
+                        
+                        <div className="modal_actions">
+                            <button 
+                                type="button" 
+                                className="cancel_modal_button"
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setDeletePassword("");
+                                    setErrorMessage("");
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                type="button" 
+                                className="confirm_delete_button"
+                                onClick={handleDeleteAccount}
+                            >
+                                Excluir conta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </form>
     );
 }

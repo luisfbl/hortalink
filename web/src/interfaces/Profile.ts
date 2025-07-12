@@ -9,7 +9,8 @@ interface Profile {
     roles: number[],
     followers: number | null,
     email?: string,
-    email_notifications?: boolean
+    email_notifications?: boolean,
+    has_password?: boolean
 }
 
 export type {

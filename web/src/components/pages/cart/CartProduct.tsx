@@ -19,11 +19,19 @@ export function CartProduct(props: {
         <section className="seller_cart" key={`cart-${cart.user.id}`}>
             <div className="seller_infos">
                 <div className="img_container">
-                    <img
-                        src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${cart.user.id}/${cart.user.avatar}.png?size=128`}
-                        width={44}
-                        height={44}
-                    />
+                    {cart.user.avatar ? (
+                        <img
+                            src={`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${cart.user.id}/${cart.user.avatar}.png?size=128`}
+                            width={44}
+                            height={44}
+                        />
+                    ) : (
+                        <img
+                            src="/assets/default-picture.svg"
+                            width={44}
+                            height={44}
+                        />
+                    )}
                 </div>
                 <h2>{cart.user.name}</h2>
                 <a className="see_profile" href={`/users/${cart.user.id}`}>Ver Perfil</a>

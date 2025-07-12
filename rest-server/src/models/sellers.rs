@@ -58,6 +58,7 @@ pub struct UserSettingsProfile {
     pub orders_received: Option<i32>,
     pub email: String,
     pub email_notifications: bool,
+    pub has_password: bool,
 }
 
 impl PublicProfile {
@@ -88,7 +89,7 @@ impl UserSettingsProfile {
             SELECT
                 u.id, u.name, u.avatar, 4 = ANY(u.roles) as is_seller,
                 s.bio, s.followers, c.following, c.orders_made, s.orders_received,
-                u.roles, u.email, u.email_notifications
+                u.roles, u.email, u.email_notifications, u.password IS NOT NULL as has_password
             FROM users u
             LEFT JOIN sellers s ON u.id = s.user_id
             LEFT JOIN customers c ON u.id = c.user_id

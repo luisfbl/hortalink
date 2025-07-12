@@ -39,12 +39,21 @@ const product = Astro.props.product
             <a href={`/users/${product.seller.id}`}>
                 <div class="seller_name">
                     <div class="img_container">
-                        <Image
-                            src=`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${product.seller.id}/${product.seller.avatar}.jpg?size=256`
-                            alt="Foto de perfil do vendedor"
-                            width={57}
-                            height={57}
-                        />
+                        {product.seller.avatar ? (
+                            <Image
+                                src=`${import.meta.env.PUBLIC_FRONTEND_CDN_URL}/avatars/${product.seller.id}/${product.seller.avatar}.jpg?size=256`
+                                alt="Foto de perfil do vendedor"
+                                width={57}
+                                height={57}
+                            />
+                        ) : (
+                            <Image
+                                src="/assets/default-picture.svg"
+                                alt="Foto de perfil padrão"
+                                width={57}
+                                height={57}
+                            />
+                        )}
                     </div>
                     <h2>{product.seller.name}</h2>
                 </div>

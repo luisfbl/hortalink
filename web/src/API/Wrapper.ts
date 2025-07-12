@@ -452,6 +452,29 @@ class APIWrapper<F extends RequestAPIFrom> {
         }
     }
 
+    private async getChatFromClient(chat_id: number) {
+        const data = await RequestAPI(this.from, `/v1/users/@me/chats/${chat_id}`, undefined, "include") as ChatPreview
+
+        return data
+    }
+    
+    private async getChatFromServer(chat_id: number, session_id: string) {
+        const data = await RequestAPI(this.from, `/v1/users/@me/chats/${chat_id}`, undefined, "include", {
+            "Cookie": `session_id=${session_id}`
+        }) as ChatPreview
+
+        return data
+    }
+
+    public async getChat(chat_id: number, session_id: F extends RequestAPIFrom.Server ? string : undefined) {
+        switch (this.from) {
+            case RequestAPIFrom.Client:
+                return await this.getChatFromClient(chat_id)
+            case RequestAPIFrom.Server:
+                return await this.getChatFromServer(chat_id, session_id)
+        }
+    }
+
     public async getChatMessagesFromClient(chat_id: number, page: number, per_page: number) {
         const params = new URLSearchParams()
         params.append("page", page.toString())
@@ -499,6 +522,15 @@ class APIWrapper<F extends RequestAPIFrom> {
             case RequestAPIFrom.Server:
                 return await this.createChatMessageFromServer(chat_id, content, session_id)
         }
+    }
+
+    public async createChat(user_id: number): Promise<{ chat_id: number }> {
+        const params = new URLSearchParams()
+        params.set("user_id", user_id.toString())
+        
+        const result = await RequestAPI(this.from, `/v1/users/@me/chats`, params, "include", {}, "POST") as { chat_id: number }
+        console.log("Resultado da API createChat:", result);
+        return result;
     }
 
     public async createSchedule(sellerId: number, schedule: ScheduleApiBody & { location: { longitude: number, latitude: number } }) {

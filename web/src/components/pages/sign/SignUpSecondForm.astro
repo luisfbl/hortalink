@@ -5,14 +5,18 @@ import ImageCropper from "./ImageCropper";
 
 <section class="form">
     <form id="second_form">
+        <p class="bad_warning" id="second_form_warnings"></p>
         <div class="profile">
             <img 
-                src="/assets/hortalink.jpg"
+                src="/assets/default-picture.svg"
                 width="140"
                 height="140"
                 alt="Foto de perfil do usuário"
                 id="user_profile_img"
             />
+            <div class="profile-loading-overlay" id="profile-loading" style="display: none;">
+                <div class="loading-spinner"></div>
+            </div>
         </div>
         
         <img 
@@ -24,10 +28,16 @@ import ImageCropper from "./ImageCropper";
             id="crop_image"
         />
 
-        <p class="tiny_text" id="add_img" style="margin-top: 0; cursor: pointer;" tabindex="0">Adicionar nova imagem</p>
+        <p class="tiny_text" id="add_img" style="margin-top: 8px; cursor: pointer; color: #4CAF50; font-weight: 500;" tabindex="0">Adicionar nova imagem</p>
         <input id="file_input" style="display:none; margin: auto;" type="file" accept="image/jpeg, image/png" name="file_input" />
         
-        <input type="text" name="name" id="username" placeholder="Digite seu nome" />
+        <div class="input-container">
+            <input type="text" name="name" id="name" placeholder="Digite seu nome" />
+            <div class="loading-overlay" id="name-loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <span>Carregando dados...</span>
+            </div>
+        </div>
 
         <div class="account_type_label">
             <p class="tiny_text" style="font-size: 1.1em; width: fit-content; max-width: 100%;">Eu sou</p>
@@ -37,7 +47,7 @@ import ImageCropper from "./ImageCropper";
         <div class="radios">
             <div class="radio">
                 <input type="radio" id="client" name="role" value="3" />
-                <label for="radio">Cliente</label>
+                <label for="client">Cliente</label>
             </div>
 
             <div class="radio">
@@ -53,6 +63,60 @@ import ImageCropper from "./ImageCropper";
 </section>
 <ImageCropper client:only="react"/>
 
+<style>
+    .input-container {
+        position: relative;
+        width: 100%;
+        max-width: 391px;
+        margin: auto;
+        margin-top: 1rem;
+    }
+
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: #4CAF50;
+        font-weight: 500;
+    }
+
+    .profile-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #4CAF50;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
 <script>
     import Sign from "@stores/pages/Sign";
 
@@ -61,9 +125,51 @@ import ImageCropper from "./ImageCropper";
     const addfile = document.querySelector<HTMLParagraphElement>("#add_img")
 
     const original_profile_img = document.querySelector<HTMLImageElement>("#user_profile_img")
+    const nameInput = document.querySelector<HTMLInputElement>("#name")
+    const nameLoading = document.querySelector<HTMLDivElement>("#name-loading")
+    const profileLoading = document.querySelector<HTMLDivElement>("#profile-loading")
+
+    const socialAuthData = sessionStorage.getItem('socialAuth')
+    
+    if (socialAuthData) {
+        try {
+            const data = JSON.parse(socialAuthData)
+            
+            if (data.name && nameInput && nameLoading) {
+                nameLoading.style.display = 'flex'
+                setTimeout(() => {
+                    nameInput.value = data.name
+                    nameLoading.style.display = 'none'
+                }, 800)
+            }
+            
+            if (data.picture && original_profile_img && profileLoading) {
+                profileLoading.style.display = 'flex'
+                
+                const img = new Image()
+                img.onload = () => {
+                    original_profile_img.src = data.picture
+                    profileLoading.style.display = 'none'
+                }
+                img.onerror = () => {
+                    profileLoading.style.display = 'none'
+                    console.error('Erro ao carregar imagem do perfil social')
+                }
+                img.src = data.picture
+            }
+        } catch (e) {
+            console.error('Erro ao processar dados de autenticação social:', e)
+            if (nameLoading) nameLoading.style.display = 'none'
+            if (profileLoading) profileLoading.style.display = 'none'
+        }
+    }
 
     crop.addEventListener("click", () => {
-        Sign.SignUpCropperOpen.set(true)
+        if (original_profile_img.src.includes('default-picture.svg')) {
+            fileinput.click()
+        } else {
+            Sign.SignUpCropperOpen.set(true)
+        }
     })
 
     addfile.addEventListener("click", () => {
@@ -87,6 +193,74 @@ import ImageCropper from "./ImageCropper";
     const first_form = document.querySelector<HTMLFormElement>("#first_form")
     const second_form = document.querySelector<HTMLFormElement>("#second_form")
     const original_profile_img = document.querySelector<HTMLImageElement>("#user_profile_img")
+    const warningsParagraph = document.querySelector<HTMLParagraphElement>("#second_form_warnings")
+
+    async function handleSignUpError(response: Response) {
+        try {
+            const errorData = await response.json()
+            
+            if (response.status === 400 && errorData.errors) {
+                const errors = errorData.errors
+                let errorMessage = "Erro de validação:\n"
+                
+                for (const [field, fieldErrors] of Object.entries(errors)) {
+                    const fieldName = getFieldDisplayName(field)
+                    if (Array.isArray(fieldErrors)) {
+                        fieldErrors.forEach((error: string) => {
+                            errorMessage += `• ${fieldName}: ${translateErrorMessage(error)}\n`
+                        })
+                    } else {
+                        errorMessage += `• ${fieldName}: ${translateErrorMessage(fieldErrors as string)}\n`
+                    }
+                }
+                
+                warningsParagraph.textContent = errorMessage.trim()
+            } else if (errorData.message) {
+                warningsParagraph.textContent = errorData.message
+            } else {
+                warningsParagraph.textContent = "Erro ao criar conta. Tente novamente."
+            }
+        } catch (e) {
+            warningsParagraph.textContent = "Erro ao criar conta. Tente novamente."
+        }
+    }
+    
+    function getFieldDisplayName(field: string): string {
+        const fieldNames: Record<string, string> = {
+            'email': 'Email',
+            'password': 'Senha',
+            'name': 'Nome',
+            'role': 'Tipo de conta',
+            'image': 'Imagem de perfil'
+        }
+        return fieldNames[field] || field
+    }
+    
+    function translateErrorMessage(error: string): string {
+        const translations: Record<string, string> = {
+            'length must be at least 8': 'deve ter pelo menos 8 caracteres',
+            'length must be at most 255': 'deve ter no máximo 255 caracteres',
+            'must be a valid email': 'deve ser um email válido',
+            'is required': 'é obrigatório',
+            'must not be empty': 'não pode estar vazio',
+            'must be a valid choice': 'deve ser uma opção válida',
+            'must contain at least one letter': 'deve conter pelo menos uma letra',
+            'must contain at least one number': 'deve conter pelo menos um número',
+            'must contain at least one special character': 'deve conter pelo menos um caractere especial'
+        }
+        
+        if (translations[error]) {
+            return translations[error]
+        }
+
+        for (const [key, value] of Object.entries(translations)) {
+            if (error.includes(key)) {
+                return value
+            }
+        }
+        
+        return error
+    }
 
     second_form.addEventListener("submit", async (e) => {
         e.preventDefault()
@@ -102,12 +276,22 @@ import ImageCropper from "./ImageCropper";
         const name = second_formdata.get("name")
         const role = second_formdata.get("role")
 
+        if (!name || name.toString().trim() === '') {
+            warningsParagraph.textContent = "Nome é obrigatório"
+            return
+        }
+
+        if (!role) {
+            warningsParagraph.textContent = "Selecione se você é cliente ou vendedor"
+            return
+        }
+
         resultant_formdata.append("email", email)
         if(password) {
             resultant_formdata.append("password", password)
         }
 
-        resultant_formdata.append("name", name)
+        resultant_formdata.append("name", name.toString().trim())
         resultant_formdata.append("role", role)
 
         await readImage(original_profile_img.src, resultant_formdata)
@@ -120,25 +304,71 @@ import ImageCropper from "./ImageCropper";
             const ok = request.ok
             if (ok) {
                 console.log("conta criada!")
+                sessionStorage.removeItem('socialAuth')
+                window.location.href = "/"
             } else {
-                alert("Erro ao logar.")
+                await handleSignUpError(request)
             }
         })
     })
 
     function readImage(src: string, form: FormData) {
         return new Promise(async (resolve, reject) => {
-            const reader = new FileReader()
+            try {
+                if (src.includes('default-picture.svg')) {
+                    console.log('Using default image, skipping upload')
+                    resolve(true)
+                    return
+                }
 
-            const request = await fetch(src)
-            const blob = await request.blob()
+                if (src.startsWith('http')) {
+                    console.log('Downloading external image:', src)
+                    
+                    const request = await fetch(src, {
+                        mode: 'cors',
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (compatible; Hortalink/1.0)'
+                        }
+                    })
+                    
+                    if (!request.ok) {
+                        console.warn(`Failed to fetch image (${request.status}), proceeding without image`)
+                        resolve(true)
+                        return
+                    }
 
-            reader.onload = (e) => {
-                form.append("image", blob, "profile.jpg")
+                    const contentType = request.headers.get('content-type')
+                    if (!contentType || !contentType.startsWith('image/')) {
+                        console.warn('Response is not an image, proceeding without image')
+                        resolve(true)
+                        return
+                    }
+
+                    const blob = await request.blob()
+
+                    if (blob.size === 0 || !blob.type.startsWith('image/')) {
+                        console.warn('Invalid image blob, proceeding without image')
+                        resolve(true)
+                        return
+                    }
+
+                    form.append("image", blob, "profile.jpg")
+                    console.log('External image uploaded successfully')
+                    resolve(true)
+                } else {
+                    const response = await fetch(src)
+                    const blob = await response.blob()
+                    
+                    if (blob.type.startsWith('image/')) {
+                        form.append("image", blob, "profile.jpg")
+                        console.log('Local image uploaded successfully')
+                    }
+                    resolve(true)
+                }
+            } catch (error) {
+                console.warn('Error processing image, proceeding without image:', error)
                 resolve(true)
             }
-
-            reader.readAsDataURL(blob)
         })
     }
 </script>

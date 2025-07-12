@@ -1,12 +1,26 @@
 ---
 import "@styles/pages/home/unsigned.scss";
+import {Image} from "astro:assets";
 ---
 
-<section class="cta_buttons">
-    <a href="/access/signin" class="primary_btn">
-        Entrar
-    </a>
-    <a href="/access/signup" class="btn">
-        Criar conta
-    </a>
-</section>
+<div class="main-container">
+    <div class="logo-container">
+        <Image
+                src="/assets/hortalink.png"
+                width={800}
+                height={800}
+                alt="Logo do Hortalink"
+                class="logo"
+                loading="eager"
+        />
+    </div>
+
+    <section class="cta_buttons">
+        <a href="/access/signin" class="primary_btn">
+            Entrar
+        </a>
+        <a href="/access/signup" class="btn">
+            Criar conta
+        </a>
+    </section>
+</div>

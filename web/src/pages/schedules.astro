@@ -4,8 +4,7 @@ import "@styles/pages/users/@me/schedule.scss";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import APIWrapper, { RequestAPIFrom } from "@HortalinkAPIWrapper";
 
-import CreateSchedule from "@components/pages/users/@me/schedule/CreateSchedule";
-import ScheduleList from "@components/pages/users/@me/schedule/ScheduleList.astro";
+import SchedulesPage from "@components/pages/users/@me/schedule/SchedulesPage";
 
 const wrapper = new APIWrapper(RequestAPIFrom.Server)
 
@@ -22,12 +21,6 @@ const schedules = session ? await wrapper.getSellerSchedules(session.profile.id,
         <title>Hortalink | Agenda</title>
     </Fragment>
     <Fragment slot="body">
-        <header>
-            <CreateSchedule client:load />
-        </header>
-        <main>
-            <h2 class="title">Agendamentos</h2>
-            <ScheduleList schedules={schedules} />
-        </main>
+        <SchedulesPage schedules={schedules} client:load />
     </Fragment>
 </BaseLayout>

@@ -37,6 +37,7 @@ main {
     
         width: 100%;
         margin-top: 1rem;
+        position: relative;
     
         .input {
             @include flex();
@@ -64,6 +65,73 @@ main {
                 background-color: adjust-color(colors.$light_1, $alpha: -0.75);
                 height: 46px;
                 padding: 0 15px;
+            }
+        }
+
+        .search_results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 13px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 8px;
+
+            .search_loading,
+            .no_results,
+            .min_chars {
+                padding: 1rem;
+                text-align: center;
+                color: colors.$mid_1;
+                font-size: 0.9em;
+            }
+
+            .search_result_item {
+                @include flex();
+                text-transform: capitalize;
+                gap: 0.75rem;
+                padding: 0.75rem 1rem;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+                border-bottom: 1px solid adjust-color(colors.$light_1, $alpha: -0.5);
+
+                &:hover {
+                    background-color: adjust-color(colors.$light_1, $alpha: -0.8);
+                }
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                .user_avatar {
+                    border-radius: 50%;
+                    object-fit: cover;
+                    flex-shrink: 0;
+                }
+
+                .user_info {
+                    @include flex();
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 0.25rem;
+                    flex: 1;
+
+                    .user_name {
+                        font-weight: 600;
+                        color: #262626;
+                        font-size: 0.95em;
+                    }
+
+                    .user_stats {
+                        font-size: 0.8em;
+                        color: colors.$mid_1;
+                        font-weight: 500;
+                    }
+                }
             }
         }
 

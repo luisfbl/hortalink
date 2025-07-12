@@ -4,6 +4,10 @@ import { Image } from "astro:assets";
 
 <section class="form">
     <h1>Olá! Cadastre-se</h1>
+    <div class="oauth-loading" id="oauth-loading" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Verificando informações da conta...</p>
+    </div>
     <form id="first_form">
         <p class="bad_warning" id="first_form_warnings"></p>
 
@@ -49,6 +53,39 @@ import { Image } from "astro:assets";
     <p class="login_bottom_text">Já tem uma conta? <a href="/access/signin">Faça login</a></p>
 </section>
 
+<style>
+    .oauth-loading {
+        text-align: center;
+        padding: 2rem;
+        margin: 1rem 0;
+        background: rgba(76, 175, 80, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(76, 175, 80, 0.2);
+    }
+
+    .oauth-loading .loading-spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #4CAF50;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    .oauth-loading p {
+        color: #4CAF50;
+        font-weight: 500;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
 <script>
     import Sign, { SignUpFormView } from "@stores/pages/Sign";
     import getSession from "src/API/APIFunctions/getSession";
@@ -56,6 +93,7 @@ import { Image } from "astro:assets";
     const form = document.querySelector<HTMLFormElement>("#first_form")
     const warningsParagraph = document.querySelector<HTMLParagraphElement>("#first_form_warnings")
     const user_img = document.querySelector<HTMLImageElement>("#user_profile_img")
+    const oauthLoading = document.querySelector<HTMLDivElement>("#oauth-loading")
 
     const params = new URL(window.location.href).searchParams
 
@@ -69,24 +107,43 @@ import { Image } from "astro:assets";
             throw new Error("invalid session")
         }
 
+        if (oauthLoading) {
+            oauthLoading.style.display = 'block'
+        }
+
         const session = await getSession(oauth_type, code, state)
 
         return session
     }
 
     checkForSession().then((session: any) => {
-        // usou o login com rede social
+        if (oauthLoading) {
+            oauthLoading.style.display = 'none'
+        }
+
+        if (session === null) {
+            console.log("Conta já existe, redirecionando para home...")
+            window.location.href = "/"
+            return
+        }
+        
         const emailInput = document.querySelector<HTMLInputElement>("#first_form #email")
         
         emailInput.value = session.email
         
-        if(session.picture) {
-            user_img.src = session.picture
+        const socialAuthData = {
+            email: session.email,
+            name: session.name,
+            picture: session.picture
         }
+        sessionStorage.setItem('socialAuth', JSON.stringify(socialAuthData))
         
         Sign.SignUpFormView.set(SignUpFormView.Profile)
     }).catch(() => {
-        // não usou login com rede social. Nesse caso vai ter que prover as credenciais.
+        if (oauthLoading) {
+            oauthLoading.style.display = 'none'
+        }
+
         form.addEventListener("submit", (e) => {
             e.preventDefault()
 

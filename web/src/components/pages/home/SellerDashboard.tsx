@@ -132,7 +132,7 @@ export default function SellerDashboard() {
                                         {order.customer_avatar ? (
                                             <img src={`/cdn/avatars/${order.customer_id}/${order.customer_avatar}.png?size=256`} alt={order.customer_name} className="customer-avatar" />
                                         ) : (
-                                            <div className="customer-avatar-placeholder">{order.customer_name.charAt(0)}</div>
+                                            <img src="/assets/default-picture.svg" alt="Foto de perfil padrão" className="customer-avatar" />
                                         )}
                                         <span className="customer-name">{order.customer_name}</span>
                                     </div>

@@ -1,50 +1,70 @@
 @use "../../colors";
 
-.cta_buttons {
-    width: 100%;
-    max-width: 100%;
-
-    position: absolute;
-    bottom: 100px;
-
+.main-container {
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
-
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 2rem;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+}
 
-    padding: 8px;
+.logo-container {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .logo {
+        width: min(300px, 80vw);
+        height: min(300px, 80vw);
+    }
+}
+
+.cta_buttons {
+    width: 100%;
+    max-width: 353px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
 
     @mixin btn {
         display: block;
-        
-        width: 353px;
-        max-width: 100%;
-
+        width: 100%;
         padding: 13px 8px;
         border-radius: 8px;
-
         text-decoration: none;
         text-align: center;
         font-size: 1.2em;
         font-weight: 600;
-
+        box-sizing: border-box;
+        transition: all 0.2s ease;
     }
 
     .primary_btn {
         @include btn;
-
         background-color: colors.$group1_color_3;
         color: colors.$lightest;
+
+        &:hover {
+            opacity: 0.9;
+        }
     }
 
     .btn {
         @include btn;
-
         background-color: transparent;
         color: colors.$light_1;
-
         border: 1px solid colors.$light_1;
+
+        &:hover {
+            background-color: colors.$light_1;
+            color: colors.$dark_1;
+        }
     }
 }

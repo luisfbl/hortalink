@@ -35,7 +35,7 @@ pub struct PostSellerProduct {
     pub unit: i16,
     #[garde(range(min = 0.0))]
     pub unit_quantity: f64,
-    #[garde(length(min = 10, max = 2096))]
+    #[garde(length(min = 0, max = 2096))]
     pub description: Option<String>,
 }
 

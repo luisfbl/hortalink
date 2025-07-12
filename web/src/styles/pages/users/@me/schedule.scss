@@ -140,6 +140,17 @@ h2.title {
   font-weight: 700;
   margin: 2rem auto;
   color: colors.$dark_1;
+  @include flex();
+  gap: 8px;
+
+  .schedule_count {
+    font-size: 1rem;
+    font-weight: 500;
+    color: colors.$group1_color_2;
+    background: rgba(colors.$group1_color_2, 0.1);
+    padding: 4px 12px;
+    border-radius: 16px;
+  }
 }
 
 .schedules {
@@ -207,6 +218,32 @@ h2.title {
         width: 20px;
         height: 20px;
         opacity: 0.7;
+      }
+    }
+  }
+
+  .no_schedules {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: colors.$mid_1;
+
+    p {
+      font-size: 1.125rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .create_first_schedule {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, colors.$group1_color_2, colors.$group1_color_3);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
       }
     }
   }
