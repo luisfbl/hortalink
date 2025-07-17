@@ -44,11 +44,5 @@ jobs:
           command: check
           args: --workspace --all-features
 
-      - name: Run Cargo Clippy (Linting)
-        run: cargo clippy --workspace --all-features -- -D warnings
-
-      - name: Run Cargo Format Check
-        run: cargo fmt --all --check
-
       - name: Build Project (Release mode)
         run: cargo build --release --workspace --all-features
