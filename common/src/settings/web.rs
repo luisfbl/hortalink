@@ -57,15 +57,13 @@ impl Protocol for RestServer {
 
 impl RestServer {
     fn new() -> Self {
+        let proxy_host: String = var("DEFAULT_PROXY").unwrap();
+        let proxy_port: u16 = var("DEFAULT_PROXY_PORT").unwrap().parse().unwrap();
+
         Self {
-            host: var("REST_SERVER_HOST")
-                .unwrap(),
-            port: var("REST_SERVER_PORT")
-                .unwrap()
-                .parse().unwrap(),
-            proxy: var("DEFAULT_PROXY")
-                .unwrap()
-                .parse().unwrap(),
+            host: var("REST_SERVER_HOST").unwrap(),
+            port: var("REST_SERVER_PORT").unwrap().parse().unwrap(),
+            proxy: format!("{proxy_host}:{proxy_port}"),
         }
     }
 }
@@ -87,14 +85,9 @@ impl Protocol for WebClient {
 impl WebClient {
     fn new() -> Self {
         Self {
-            host: var("WEB_CLIENT_HOST")
-                .unwrap(),
-            port: var("WEB_CLIENT_PORT")
-                .unwrap()
-                .parse().unwrap(),
-            proxy: var("DEFAULT_PROXY")
-                .unwrap()
-                .parse().unwrap(),
+            host: var("WEB_CLIENT_HOST").unwrap(),
+            port: var("WEB_CLIENT_PORT").unwrap().parse().unwrap(),
+            proxy: var("DEFAULT_PROXY").unwrap().parse().unwrap(),
         }
     }
 }
@@ -116,17 +109,10 @@ impl Protocol for CdnServer {
 impl CdnServer {
     fn new() -> Self {
         Self {
-            host: var("CDN_SERVER_HOST")
-                .unwrap(),
-            port: var("CDN_SERVER_PORT")
-                .unwrap()
-                .parse().unwrap(),
-            storage: var("CDN_STORAGE_PATH")
-                .unwrap()
-                .parse().unwrap(),
-            proxy: var("CDN_PROXY")
-                .unwrap()
-                .parse().unwrap(),
+            host: var("CDN_SERVER_HOST").unwrap(),
+            port: var("CDN_SERVER_PORT").unwrap().parse().unwrap(),
+            storage: var("CDN_STORAGE_PATH").unwrap().parse().unwrap(),
+            proxy: var("CDN_PROXY").unwrap().parse().unwrap(),
         }
     }
 }

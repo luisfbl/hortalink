@@ -4,7 +4,6 @@ members = [
     "core",
     "rest-server",
     "cdn-server",
-    "microservices",
     "websocket",
 ]
 resolver = "2"

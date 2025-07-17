@@ -20,4 +20,3 @@ web-socket = { version = "0.7.0" }
 sha1 = { version = "0.11.0-pre.5" }
 base64 = { version = "0.22.0" }
 rmp-serde = { version = "1.1.2" }
-time = { version = "0.3.36", features = ["serde"] }

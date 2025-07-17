@@ -1,16 +1,18 @@
 name: Rust CI
 
-on: [ push ]
+on: [ push, pull_request ]
 
 env:
   CARGO_TERM_COLOR: always
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hortalink
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     services:
       postgres:
-        image: postgis/postgis:15-3.4
+        image: postgis/postgis:latest
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -24,32 +26,29 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: actions-rs/toolchain@v1
+      - name: Cache Dependencies
+        uses: actions/cache@v4
         with:
-          toolchain: stable
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
-
-      - name: Check
+      - name: Run Cargo Check (Fast compilation check)
         uses: actions-rs/cargo@v1
         with:
           command: check
-
-      - name: Run migrations
-        run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -d hortalink -f rest-server/migrations/setup/20240215193325_init.up.sql
-
-      - name: Create .env file
-        run: echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/hortalink" > .env
-
-      - name: Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
           args: --workspace --all-features
+
+      - name: Run Cargo Clippy (Linting)
+        run: cargo clippy --workspace --all-features -- -D warnings
+
+      - name: Run Cargo Format Check
+        run: cargo fmt --all --check
+
+      - name: Build Project (Release mode)
+        run: cargo build --release --workspace --all-features

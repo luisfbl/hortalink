@@ -38,16 +38,20 @@ pub async fn identify(
         .unwrap();
 
     if let Some(data) = session_data {
-        let user_id = rmp_serde::from_slice::<Record>(&data).unwrap()
-            .data["axum-login.data"]["user_id"].as_i64().unwrap() as i32;
+        let record = rmp_serde::from_slice::<Record>(&data);
+        
+        if let Ok(record) = record {
+            let user_id = record
+                .data["axum-login.data"]["user_id"].as_i64().unwrap() as i32;
 
-        if let Some(session) = connections.iter().find(|session| session.user_id == Some(user_id)) {
-            send_message(
-                &session.frame,
-                GatewayRequest { opcode: 8, d: None },
-            )
+            if let Some(session) = connections.iter().find(|session| session.user_id == Some(user_id)) {
+                send_message(
+                    &session.frame,
+                    GatewayRequest { opcode: 8, d: None },
+                )
+            }
+
+            connections[idx].user_id = Some(user_id);
         }
-
-        connections[idx].user_id = Some(user_id);
     }
 }

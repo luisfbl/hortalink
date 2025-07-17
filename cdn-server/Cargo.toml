@@ -15,7 +15,7 @@ tower-http = { workspace = true, features = ["trace"] }
 serde = { workspace = true }
 dotenv = { workspace = true }
 
-thiserror = { version = "1.0.57" }
+thiserror = { version = "2.0.12" }
 image = { version = "0.25.0" }
 tracing = "0.1.40"
 

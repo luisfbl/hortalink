@@ -1,7 +1,7 @@
 use crate::entities::Environment;
 use crate::settings::database::DatabaseSettings;
 use crate::settings::secrets::Secrets;
-use crate::settings::services::{RabbitMQ, WebSocket};
+use crate::settings::services::WebSocket;
 use crate::settings::web::WebApp;
 
 pub mod web;
@@ -13,7 +13,6 @@ pub mod services;
 pub struct AppSettings {
     pub web: WebApp,
     pub database: DatabaseSettings,
-    pub rabbitmq: RabbitMQ,
     pub websocket: WebSocket,
     pub secrets: Secrets,
     pub environment: Environment,
@@ -62,7 +61,6 @@ impl AppSettings {
         Self {
             web: WebApp::new(),
             database: DatabaseSettings::new(),
-            rabbitmq: RabbitMQ::new(),
             websocket: WebSocket::new(),
             secrets: Secrets::new(),
             environment: Default::default(),

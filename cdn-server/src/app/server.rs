@@ -94,14 +94,14 @@ impl Server {
         log::info!("Loading resources images");
 
         let resources = Path::new("cdn-server/resources");
-        copy_dir_all(resources, destination);
+        copy_dir_all(resources, destination).expect("Failed to load resources dir");
 
         if let Environment::Development = env {
             let destination = format!("{storage_path}");
             let destination = Path::new(destination.as_str());
             let resources = Path::new("rest-server/tests/resources");
 
-            copy_dir_all(resources, destination);
+            copy_dir_all(resources, destination).expect("Failed to load test resources");
         }
     }
 }
