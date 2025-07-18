@@ -12,19 +12,21 @@ COPY websocket websocket/
 RUN cargo build --release --workspace --target x86_64-unknown-linux-gnu
 
 COPY . .
+COPY cdn-server/resources cdn-server/resources
 
 RUN cargo build --release --bin cdn-server --target x86_64-unknown-linux-gnu
 
 FROM debian:latest
 
 RUN groupadd -r appuser && useradd -r -g appuser appuser
-RUN mkdir -p /data/cdn_storage && chown -R appuser:appuser /data/cdn_storage
+RUN mkdir -p /data/cdn_storage /data/cdn_storage/avatars /data/cdn_storage/products \
+    && chown -R appuser:appuser /data/cdn_storage
 
 USER appuser
 
 WORKDIR /app
 
-COPY cdn-server/resources ./cdn-server/resources
+COPY --from=builder /app/cdn-server/resources /data/cdn_storage/resources
 COPY --from=builder /app/target/x86_64-unknown-linux-gnu/release/cdn-server ./cdn-server/cdn-server
 
 EXPOSE 5767
