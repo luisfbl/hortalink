@@ -193,7 +193,7 @@ export default function SettingsForm(props: { user: User }) {
                 ? { password: deletePassword }
                 : { oauth_confirmation: true };
 
-            const response = await fetch('/api/v1/auth/account', {
+            const response = await fetch(`${import.meta.env.PUBLIC_FRONTEND_API_URL}/v1/auth/account`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -208,7 +208,7 @@ export default function SettingsForm(props: { user: User }) {
             }
 
             try {
-                await fetch('/api/v1/auth/logout', {
+                await fetch(`${import.meta.env.PUBLIC_FRONTEND_API_URL}/v1/auth/logout`, {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -370,7 +370,7 @@ export default function SettingsForm(props: { user: User }) {
                     className="logout_button"
                     onClick={async () => {
                         try {
-                            await fetch('/api/v1/auth/logout', {
+                            await fetch(`${import.meta.env.PUBLIC_FRONTEND_API_URL}/v1/auth/logout`, {
                                 method: 'GET',
                                 credentials: 'include'
                             });

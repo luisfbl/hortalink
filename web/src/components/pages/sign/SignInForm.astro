@@ -72,7 +72,7 @@ import { Image } from "astro:assets";
             return
         }
 
-        fetch("/api/v1/auth/login", {
+        fetch(`${import.meta.env.PUBLIC_FRONTEND_API_URL}/v1/auth/login`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
