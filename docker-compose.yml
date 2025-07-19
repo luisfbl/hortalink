@@ -19,7 +19,7 @@ services:
       - "${DEFAULT_PROXY_PORT}:80"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "nginx -t"]
+      test: [ "CMD-SHELL", "nginx -t" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -32,6 +32,8 @@ services:
       - ./.env
     volumes:
       - cdn_data:/data/cdn_storage
+      - cargo_cache:/usr/local/cargo/registry
+      - target_cache:/app/target
     networks:
       - hortalink_network
     depends_on:
@@ -57,6 +59,8 @@ services:
       - ./.env
     volumes:
       - cdn_data:/data/cdn_storage
+      - cargo_cache:/usr/local/cargo/registry
+      - target_cache:/app/target
     networks:
       - hortalink_network
     restart: unless-stopped
@@ -69,6 +73,9 @@ services:
       - ./.env
     networks:
       - hortalink_network
+    volumes:
+      - cargo_cache:/usr/local/cargo/registry
+      - target_cache:/app/target
     depends_on:
       postgres:
         condition: service_healthy
@@ -88,14 +95,16 @@ services:
     networks:
       - hortalink_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
-  pgdata: {}
-  cdn_data: {}
+  pgdata: { }
+  cdn_data: { }
+  cargo_cache: { }
+  target_cache: { }
 
 networks:
   hortalink_network:
