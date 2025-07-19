@@ -2,7 +2,7 @@ FROM rust:latest AS builder
 
 WORKDIR /app
 
-COPY Cargo.toml Cargo.lock .cargo ./
+COPY Cargo.toml ./
 COPY common common/
 COPY core core/
 COPY rest-server rest-server/

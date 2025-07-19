@@ -5,5 +5,12 @@ RUN npm install -g pnpm
 WORKDIR /usr/src/app
 COPY . .
 
+WORKDIR /usr/src/app/web
+
+COPY web/.env .env
+
 RUN pnpm install
-CMD ["pnpm", "recursive", "run", "start"]
+RUN pnpm build
+
+EXPOSE 4321
+CMD ["pnpm", "start"]

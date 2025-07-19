@@ -296,7 +296,7 @@ import ImageCropper from "./ImageCropper";
 
         await readImage(original_profile_img.src, resultant_formdata)
 
-        fetch(`\`${import.meta.env.PUBLIC_FRONTEND_API_URL}/v1/auth/sign-in`, {
+        fetch(`${import.meta.env.PUBLIC_FRONTEND_API_URL}/v1/auth/sign-in`, {
             method: "POST",
             body: resultant_formdata,
             credentials: "include",
