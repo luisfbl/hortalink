@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: nginx:alpine
+    image: nginx:alpine3.22
     volumes:
       - ./nginx.template.conf:/etc/nginx/conf.d/nginx.template
     env_file:
@@ -82,7 +82,7 @@ services:
     restart: unless-stopped
 
   postgres:
-    image: postgis/postgis:15-3.4
+    image: postgis/postgis:17-3.5-alpine
     container_name: hortalink_postgres
     environment:
       POSTGRES_USER: ${DB_USERNAME}

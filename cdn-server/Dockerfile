@@ -1,4 +1,4 @@
-FROM rust:latest AS builder
+FROM rust:1.88.0 AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY cdn-server/resources cdn-server/resources
 
 RUN cargo build --release --bin cdn-server --target x86_64-unknown-linux-gnu
 
-FROM debian:latest
+FROM debian:12.11
 
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 RUN mkdir -p /data/cdn_storage /data/cdn_storage/avatars /data/cdn_storage/products \

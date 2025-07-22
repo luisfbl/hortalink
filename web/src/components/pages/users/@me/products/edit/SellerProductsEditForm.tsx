@@ -144,8 +144,50 @@ export default function SellerProductsEditForm(props: { seller_id: number, produ
             }
             window.location.href = "/users/@me/products"
         } catch (error) {
-            alert("Erro ao salvar produto. Tente novamente.")
             console.error(error)
+
+            let errorMessage = "Erro ao salvar produto. Tente novamente."
+
+            if (error.response?.data) {
+                const errorData = error.response.data
+                let rawError = ""
+
+                if (Array.isArray(errorData.message) && errorData.message.length === 2) {
+                    rawError = errorData.message[1]
+                } else if (typeof errorData === 'string') {
+                    rawError = errorData
+                } else if (errorData.message && typeof errorData.message === 'string') {
+                    rawError = errorData.message
+                }
+
+                if (rawError.includes("field 'price'") && rawError.includes("cannot parse float")) {
+                    errorMessage = "Por favor, preencha o campo de preço com um valor válido."
+                } else if (rawError.includes("field 'quantity'") && rawError.includes("cannot parse")) {
+                    errorMessage = "Por favor, preencha o campo de quantidade com um número válido."
+                } else if (rawError.includes("field 'unit_quantity'") && rawError.includes("cannot parse")) {
+                    errorMessage = "Por favor, preencha a quantidade por unidade com um valor válido."
+                } else if (rawError.includes("description: length is lower than")) {
+                    errorMessage = "A descrição deve ter pelo menos 10 caracteres."
+                } else if (rawError.includes("description: length is greater than")) {
+                    errorMessage = "A descrição não pode ter mais de 2096 caracteres."
+                } else if (rawError.includes("price: range is lower than")) {
+                    errorMessage = "O preço deve ser maior que R$ 0,10."
+                } else if (rawError.includes("quantity: range is lower than")) {
+                    errorMessage = "A quantidade deve ser pelo menos 1."
+                } else if (rawError.includes("photos: length is lower than")) {
+                    errorMessage = "Adicione pelo menos 1 foto do produto."
+                } else if (rawError.includes("photos: length is greater than")) {
+                    errorMessage = "Você pode adicionar no máximo 5 fotos."
+                } else if (rawError.includes("schedules_id: length is greater than")) {
+                    errorMessage = "Você pode selecionar no máximo 5 dias de venda."
+                } else if (rawError.includes("unit_quantity: range is lower than")) {
+                    errorMessage = "A quantidade por unidade deve ser maior que 0."
+                } else if (rawError) {
+                    errorMessage = rawError
+                }
+            }
+
+            alert(errorMessage)
         }
     }
 

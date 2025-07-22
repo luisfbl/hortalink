@@ -9,10 +9,11 @@ interface ScheduleModalProps {
     sellerId: number;
     selected: Schedule;
     onClose: () => void;
-    onScheduleSelected: (schedule: Schedule) => void;
+    onScheduleSelected: (schedule: Schedule | 'no-schedules') => void;
+    is_seller: boolean;
 }
 
-export default function ScheduleSelectionModal({ productId, sellerId, selected, onClose, onScheduleSelected }: ScheduleModalProps) {
+export default function ScheduleSelectionModal({ productId, sellerId, selected, onClose, onScheduleSelected, is_seller = false }: ScheduleModalProps) {
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(selected);
@@ -39,6 +40,10 @@ export default function ScheduleSelectionModal({ productId, sellerId, selected, 
         }
     };
 
+    const handleCreateSchedule = () => {
+        onScheduleSelected('no-schedules');
+    };
+
     return (
         <section className="modal_container">
             <div className="schedule_modal">
@@ -57,7 +62,16 @@ export default function ScheduleSelectionModal({ productId, sellerId, selected, 
                 {loading ? (
                     <p className="loading">Carregando agendamentos...</p>
                 ) : schedules.length === 0 ? (
-                    <p className="no-schedules">Nenhum agendamento disponível para este vendedor.</p>
+                    <div className="no_schedules_container">
+                        <p className="no-schedules">Você ainda não tem agendamentos cadastrados.</p>
+                        {
+                            is_seller ? (
+                                <button className="create_schedule_btn" onClick={handleCreateSchedule}>
+                                    Criar Primeiro Agendamento
+                                </button>
+                            ) : <p></p>
+                        }
+                    </div>
                 ) : (
                     <div className="schedules_list">
                         {schedules.map((schedule) => (
@@ -83,18 +97,20 @@ export default function ScheduleSelectionModal({ productId, sellerId, selected, 
                     </div>
                 )}
 
-                <div className="buttons">
-                    <button
-                        className="confirm_btn"
-                        onClick={handleConfirm}
-                        disabled={selectedSchedule === null}
-                    >
-                        Confirmar
-                    </button>
-                    <button className="cancel_btn" onClick={onClose}>
-                        Cancelar
-                    </button>
-                </div>
+                {schedules.length > 0 && (
+                    <div className="buttons">
+                        <button
+                            className="confirm_btn"
+                            onClick={handleConfirm}
+                            disabled={selectedSchedule === null}
+                        >
+                            Confirmar
+                        </button>
+                        <button className="cancel_btn" onClick={onClose}>
+                            Cancelar
+                        </button>
+                    </div>
+                )}
             </div>
         </section>
     );

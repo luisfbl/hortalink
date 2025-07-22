@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:lts-alpine3.22
 
 RUN npm install -g pnpm
 
