@@ -2,7 +2,7 @@ services:
   nginx:
     image: nginx:alpine3.22
     volumes:
-      - ./nginx.template.conf:/etc/nginx/conf.d/nginx.template
+      - ./nginx.template.prod.conf:/etc/nginx/conf.d/nginx.template
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     env_file:
