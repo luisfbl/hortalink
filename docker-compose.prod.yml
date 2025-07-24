@@ -1,0 +1,123 @@
+services:
+  nginx:
+    image: nginx:alpine3.22
+    volumes:
+      - ./nginx.template.conf:/etc/nginx/conf.d/nginx.template
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    env_file:
+      - ./.env
+    command: [ "/bin/sh" , "-c" , "envsubst < /etc/nginx/conf.d/nginx.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'" ]
+    networks:
+      - hortalink_network
+    depends_on:
+      rest-server:
+        condition: service_started
+      cdn-server:
+        condition: service_started
+      web:
+        condition: service_started
+    ports:
+      - "${DEFAULT_PROXY_PORT}:80"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "nginx -t" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  rest-server:
+    build:
+      context: .
+      dockerfile: ./rest-server/Dockerfile
+    env_file:
+      - ./.env
+    volumes:
+      - cdn_data:/data/cdn_storage
+      - cargo_cache:/usr/local/cargo/registry
+      - target_cache:/app/target
+    networks:
+      - hortalink_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: ./web/Dockerfile
+    env_file:
+      - ./.env
+    networks:
+      - hortalink_network
+    restart: unless-stopped
+
+  cdn-server:
+    build:
+      context: .
+      dockerfile: ./cdn-server/Dockerfile
+    env_file:
+      - ./.env
+    volumes:
+      - cdn_data:/data/cdn_storage
+      - cargo_cache:/usr/local/cargo/registry
+      - target_cache:/app/target
+    networks:
+      - hortalink_network
+    restart: unless-stopped
+
+  websocket:
+    build:
+      context: .
+      dockerfile: ./websocket/Dockerfile
+    env_file:
+      - ./.env
+    networks:
+      - hortalink_network
+    volumes:
+      - cargo_cache:/usr/local/cargo/registry
+      - target_cache:/app/target
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgis/postgis:17-3.5-alpine
+    container_name: hortalink_postgres
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:${DB_PORT}"
+    networks:
+      - hortalink_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  certbot:
+    image: certbot/certbot:v4.1.1
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 1; done'"
+    networks:
+      - hortalink_network
+    restart: unless-stopped
+
+volumes:
+  pgdata: { }
+  cdn_data: { }
+  cargo_cache: { }
+  target_cache: { }
+
+networks:
+  hortalink_network:
+    driver: bridge
