@@ -5,6 +5,8 @@ import APIWrapper, {RequestAPIFrom} from "../API/Wrapper";
 const session_cookie = Astro.cookies.get("session_id")
 const session_id = session_cookie?.value || null
 const wrapper = new APIWrapper(RequestAPIFrom.Server)
+const loginStatus = Astro.url.searchParams.get("login")
+const showLoginSuccess = loginStatus === "success"
 
 let session = null
 if (session_id) {
@@ -32,6 +34,13 @@ export const prerender = false;
         <title>Hortalink</title>
     </Fragment>
     <Fragment slot="body">
+        {showLoginSuccess && (
+            <div class="flash-message success" data-cy="login-success-message" role="status" aria-live="polite">
+                <span>Login efetuado com sucesso!</span>
+                <button type="button" class="flash-close" aria-label="Fechar mensagem">x</button>
+            </div>
+        )}
+
         <HomeComponent />
 
         {!session &&
@@ -40,5 +49,55 @@ export const prerender = false;
                 navbar.hidden = true
                 </script>
         }
+        {showLoginSuccess &&
+            <script define:vars={{ showLoginSuccess }}>
+                if (showLoginSuccess) {
+                    const flash = document.querySelector<HTMLDivElement>(".flash-message")
+                    const closeButton = document.querySelector(".flash-close")
+
+                    const removeQueryParam = () => {
+                        const url = new URL(window.location.href)
+                        url.searchParams.delete("login")
+                        window.history.replaceState({}, "", url.toString())
+                    }
+
+                    const dismiss = () => {
+                        flash?.remove()
+                    }
+
+                    removeQueryParam()
+
+                    if (closeButton && typeof closeButton === "object" && "addEventListener" in closeButton) {
+                        closeButton.addEventListener("click", dismiss)
+                    }
+
+                    setTimeout(dismiss, 5000)
+                }
+            </script>
+        }
     </Fragment>
+    <style>
+        .flash-message {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.9rem 1.1rem;
+            border-radius: 10px;
+            background-color: #e6f4ea;
+            color: #1a602e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 20;
+        }
+
+        .flash-message .flash-close {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 700;
+            color: inherit;
+        }
+    </style>
 </BaseLayout>

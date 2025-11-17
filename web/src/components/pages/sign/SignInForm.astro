@@ -4,13 +4,13 @@ import { Image } from "astro:assets";
 
 <section class="form">
     <h1>Olá! Faça login</h1>
-    <form id="first_form">
-        <p class="bad_warning" id="first_form_warnings"></p>
+    <form id="first_form" data-cy="login-form" novalidate>
+        <p class="bad_warning" id="first_form_warnings" data-cy="login-feedback"></p>
 
-        <input type="text" id="email" name="email" placeholder="Email" />
-        <input type="password" id="password" name="password" placeholder="Senha" />
+        <input type="email" id="email" name="email" placeholder="Email" autocomplete="email" data-cy="login-email" required />
+        <input type="password" id="password" name="password" placeholder="Senha" autocomplete="current-password" data-cy="login-password" required />
 
-        <button type="submit">Login</button>
+        <button type="submit" id="login-submit" data-cy="login-submit" disabled>Login</button>
     </form>
 </section>
 
@@ -50,26 +50,70 @@ import { Image } from "astro:assets";
 
 <script>
     const form = document.querySelector<HTMLFormElement>("#first_form")
+    const emailInput = document.querySelector<HTMLInputElement>("#email")
+    const passwordInput = document.querySelector<HTMLInputElement>("#password")
+    const submitButton = document.querySelector<HTMLButtonElement>("#login-submit")
     const warningsParagraph = document.querySelector<HTMLParagraphElement>("#first_form_warnings")
 
-    const params = new URL(window.location.href).searchParams
+    const invalidCredentialsMessage = "Credenciais inválidas."
+    const successRedirectTarget = "/?login=success"
+
+    const clearWarning = () => {
+        if (warningsParagraph) {
+            warningsParagraph.textContent = ""
+        }
+    }
+
+    const setWarning = (message: string) => {
+        if (warningsParagraph) {
+            warningsParagraph.textContent = message
+        }
+    }
+
+    const updateButtonState = () => {
+        const emailFilled = Boolean(emailInput?.value.trim().length)
+        const passwordFilled = Boolean(passwordInput?.value.trim().length)
+
+        if (submitButton) {
+            submitButton.disabled = !(emailFilled && passwordFilled)
+        }
+    }
+
+    updateButtonState()
+
+    emailInput?.addEventListener("input", () => {
+        clearWarning()
+        updateButtonState()
+    })
+
+    passwordInput?.addEventListener("input", () => {
+        clearWarning()
+        updateButtonState()
+    })
 
     form.addEventListener("submit", (e) => {
         e.preventDefault()
 
+        clearWarning()
+
         const formdata = new FormData(form)
-        
-        const email = formdata.get("email")?.toString()
-        const password = formdata.get("password")?.toString()
+        const email = formdata.get("email")?.toString().trim()
+        const password = formdata.get("password")?.toString().trim()
 
         if(!email) {
-            warningsParagraph.textContent = "Forneça um email."
+            setWarning("E-mail é obrigatório.")
+            updateButtonState()
             return;
         }
 
         if(!password) {
-            warningsParagraph.textContent = "Forneça sua senha."
+            setWarning("Senha é obrigatória.")
+            updateButtonState()
             return
+        }
+
+        if (submitButton) {
+            submitButton.disabled = true
         }
 
         fetch(`${import.meta.env.PUBLIC_FRONTEND_API_URL}/v1/auth/login`, {
@@ -83,13 +127,35 @@ import { Image } from "astro:assets";
             }),
             credentials: "include",
         }).then(async (request) => {
-            const ok = request.ok
-            if (ok) {
-                console.log("Login feito!")
-                window.location.href = "/"
-            } else {
-                warningsParagraph.textContent = "Usuário não encontrado."
+            if (request.ok) {
+                window.location.href = successRedirectTarget
+                return
             }
+
+            let errorMessage = invalidCredentialsMessage
+
+            try {
+                const errorResponse = await request.json()
+                const message = typeof errorResponse?.message === "string" ? errorResponse.message : null
+
+                if (message && message.toLowerCase().includes("notfound")) {
+                    errorMessage = invalidCredentialsMessage
+                } else if (message && ![400, 401, 404].includes(request.status)) {
+                    errorMessage = message
+                } else if (request.status >= 500) {
+                    errorMessage = "Não foi possível realizar login. Tente novamente."
+                }
+            } catch (_) {
+                if (request.status >= 500) {
+                    errorMessage = "Não foi possível realizar login. Tente novamente."
+                }
+            }
+
+            setWarning(errorMessage)
+        }).catch(() => {
+            setWarning("Não foi possível realizar login. Tente novamente.")
+        }).finally(() => {
+            updateButtonState()
         })
     })
 

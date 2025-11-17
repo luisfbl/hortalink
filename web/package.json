@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "astro dev --host",
     "build": "astro build",
-    "start": "astro preview --host 0.0.0.0 --port 4321"
+    "start": "astro preview --host 0.0.0.0 --port 4321",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open"
   },
   "keywords": [],
   "author": "",
@@ -23,5 +25,8 @@
     "react-dom": "^18.3.1",
     "sass": "^1.79.3",
     "type-fest": "^4.35.0"
+  },
+  "devDependencies": {
+    "cypress": "^13.13.2"
   }
 }
